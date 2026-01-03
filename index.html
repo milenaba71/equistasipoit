@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>App dolore + dermatomeri + punti guidati</title>
+  <title>Dolore + mappe dermatomeri + punti guidati</title>
   <style>
     :root{
       --blue:#1f5eff;
@@ -46,27 +46,26 @@
     .result{background:#f7f9ff;border:1px solid #dfe6ff;padding:12px;border-radius:12px;white-space:pre-wrap}
     .warn{background:#fff5f5;border:1px solid #ffd6d6;color:#7a1b1b;padding:12px;border-radius:12px;margin-top:12px}
 
-    /* MAP GRID */
     .mapBox{border:1px solid #e6e8f2;border-radius:16px;padding:12px;background:#fff}
     .mapGrid{display:grid;grid-template-columns:1fr;gap:12px}
     @media(min-width:980px){.mapGrid{grid-template-columns:1fr 1fr}}
     .pane{border:1px solid #eef1ff;border-radius:16px;padding:10px;background:#fbfcff}
     .pane b{display:block;margin-bottom:6px}
 
-    /* IMAGE + OVERLAY MARKERS */
     .imgWrap{position:relative;border-radius:14px;overflow:hidden;border:1px solid rgba(0,0,0,.06);background:#fff}
     .imgWrap img{width:100%;height:auto;display:block}
+    .imgErr{display:none;padding:10px;font-size:12px;color:#7a1b1b;background:#fff5f5;border-top:1px solid #ffd6d6}
 
     .marker{
       position:absolute;
       transform:translate(-50%,-50%);
       display:none;
       z-index:3;
-      pointer-events:auto;
+      pointer-events:auto;   /* <- cliccabile */
       cursor:pointer;
       user-select:none;
       -webkit-user-select:none;
-      touch-action:none; /* importante per drag su mobile */
+      touch-action:none;
     }
     .marker.show{display:block}
     .dot{
@@ -84,11 +83,10 @@
       font-size:12px;
       color:#111;
       box-shadow:0 6px 18px rgba(0,0,0,.08);
-      max-width:280px;
+      max-width:300px;
     }
     .label small{display:block;color:#555;font-size:11px;margin-top:2px;white-space:normal}
 
-    /* MODAL */
     .modalBack{
       position:fixed; inset:0; background:rgba(0,0,0,.35);
       display:none; align-items:center; justify-content:center; padding:18px; z-index:50;
@@ -104,12 +102,6 @@
     .modalBody{margin-top:10px;color:#222;line-height:1.45;font-size:14px}
     .chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
     .chip{background:var(--soft);color:var(--blue);padding:4px 10px;border-radius:999px;font-size:12px}
-
-    /* Calibrazione */
-    .tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0 0}
-    .toolBox{border:1px solid #e6e8f2;border-radius:14px;padding:8px 10px;background:#fff;display:flex;gap:10px;align-items:center}
-    .toolBox input{width:auto}
-    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-size:12px;color:#333}
   </style>
 </head>
 
@@ -118,22 +110,7 @@
   <div class="card">
     <h2>Demo — dolore + mappe dermatomeri + punti guidati</h2>
     <div class="small">
-      Demo informativa. Non è diagnosi. I punti sono mostrati come guida visiva con riferimenti anatomici ripetibili.
-    </div>
-
-    <div class="tools">
-      <div class="toolBox">
-        <label style="margin:0;display:flex;align-items:center;gap:8px;font-size:13px;">
-          <input type="checkbox" id="calibMode"/>
-          Modalità calibrazione marker
-        </label>
-        <span class="small">Trascina i marker e salva posizione (solo su questo dispositivo).</span>
-      </div>
-      <div class="toolBox">
-        <button class="ghost" id="saveCalibBtn" type="button">Salva calibrazione</button>
-        <button class="ghost" id="resetCalibBtn" type="button">Reset calibrazione</button>
-        <span class="mono" id="calibHint">—</span>
-      </div>
+      Demo informativa. Non è diagnosi. Tocca i marker per vedere la scheda del punto.
     </div>
 
     <div class="progress"><div class="bar" id="bar"></div></div>
@@ -177,8 +154,6 @@
     <section class="step" id="step2">
       <div class="pill">Passo 2/4</div>
       <p><b>Seleziona la zona più precisa</b></p>
-      <div class="small">Le opzioni cambiano in base all’area.</div>
-
       <div class="zones" id="zones"></div>
 
       <div class="btnbar">
@@ -226,7 +201,7 @@
     <!-- STEP 4 -->
     <section class="step" id="step4">
       <div class="pill">Passo 4/4</div>
-      <p><b>Guida di applicazione (marker + spiegazione)</b></p>
+      <p><b>Guida (marker cliccabili + riferimento anatomico)</b></p>
 
       <div class="row two">
         <div>
@@ -239,54 +214,42 @@
           </div>
 
           <div class="small" style="margin-top:10px;">
-            <b>Riferimento palpatorio L4–L5 (ripetibile):</b><br/>
-            appoggia i pollici sulle <b>creste iliache</b> (ossatura alta del bacino) e immagina una linea tra i punti più alti:
-            quella linea incrocia circa <b>L4</b>. Lo spazio <b>L4–L5</b> è <b>subito sotto</b> il processo spinoso di L4.
-          </div>
-
-          <div class="small" style="margin-top:10px;">
-            <b>Tip:</b> tocchi un marker → si apre la scheda con razionale neuromuscolare e coordinate segmentarie.
+            <b>Riferimento palpatorio L4–L5:</b><br/>
+            linea tra le <b>creste iliache</b> ≈ <b>L4</b>. Lo spazio <b>L4–L5</b> è subito sotto il processo spinoso di L4.
           </div>
         </div>
 
         <div class="mapBox">
           <div class="mapGrid">
 
-            <!-- PANE A: Dermatomeri selezionati -->
             <div class="pane">
               <b>Mappa dermatomeri (vista automatica)</b>
               <div class="imgWrap" id="wrapDerm">
                 <img id="imgDerm" alt="Mappa dermatomeri">
-                <!-- marker dinamici qui -->
               </div>
-              <div class="small">La vista cambia in base al distretto (collo/spalla/arto sup/arto inf/dorso).</div>
             </div>
 
-            <!-- PANE B: Colonna (immagine tua) -->
             <div class="pane">
-              <b>Colonna vertebrale (riferimento anatomico)</b>
+              <b>Colonna vertebrale (immagine dal repo)</b>
               <div class="imgWrap" id="wrapSpine">
-                <img id="imgSpine" alt="Colonna vertebrale con livelli">
-                <!-- marker dinamici qui -->
+                <img id="imgSpine" alt="Colonna vertebrale">
+                <div class="imgErr" id="spineErr">
+                  Immagine colonna non trovata. Controlla che nel repo esista <b>colonna L4 L5.png</b> nella stessa cartella di index.html.
+                </div>
               </div>
-              <div class="small">Qui il marker indica il livello segmentario con riferimento palpatorio.</div>
             </div>
 
-            <!-- PANE C: Arti inferiori -->
             <div class="pane">
               <b>Arti inferiori (zona dolore)</b>
               <div class="imgWrap" id="wrapLower">
                 <img id="imgLower" alt="Dermatomeri arti inferiori">
-                <!-- marker dinamici qui -->
               </div>
             </div>
 
-            <!-- PANE D: Arti superiori -->
             <div class="pane">
               <b>Arti superiori (zona dolore)</b>
               <div class="imgWrap" id="wrapUpper">
                 <img id="imgUpper" alt="Dermatomeri arti superiori">
-                <!-- marker dinamici qui -->
               </div>
             </div>
 
@@ -298,7 +261,7 @@
   </div>
 </div>
 
-<!-- MODAL -->
+<!-- MODALE -->
 <div class="modalBack" id="modalBack" role="dialog" aria-modal="true">
   <div class="modal">
     <div class="modalHeader">
@@ -311,36 +274,33 @@
 </div>
 
 <script>
-/* =========================
-   IMMAGINI
-   ========================= */
-const IMG = {
-  derm_front: "https://www.laguardiamedica.it/2019/contenuti/neurologia/images/derm_01.jpg",
-  derm_back:  "https://www.laguardiamedica.it/2019/contenuti/neurologia/images/derm_02.jpg",
-  derm_upper: "https://www.laguardiamedica.it/2019/contenuti/neurologia/images/derm_03.jpg",
-  derm_lower: "https://www.laguardiamedica.it/2019/contenuti/neurologia/images/derm_04.jpg",
-  // il tuo file nel repo (CON SPAZI) -> negli URL gli spazi sono %20
-  spine: "colonna%20L4%20L5.png"
-};
+/* ========= Helpers ========= */
+const $ = (id)=>document.getElementById(id);
 
-/* =========================
-   STATO
-   ========================= */
-const STATE = {
-  step: 1,
-  area: "",
-  side: "",
-  zone: "",
-  zoneLabel: "",
-  intensity: "",
-  duration: "",
-  notes: "",
-  plan: null
-};
+function showStep(n){
+  ["step1","step2","step3","step4"].forEach((s,i)=>$(s).classList.toggle("active", i===n-1));
+  $("bar").style.width = (((n-1)/3)*100) + "%";
+}
 
-/* =========================
-   ZONE PER AREA
-   ========================= */
+function openModal(meta){
+  $("modalTitle").textContent = meta.title || "Dettaglio";
+  const chips = $("modalChips");
+  chips.innerHTML = "";
+  (meta.chips||[]).forEach(c=>{
+    const s = document.createElement("span");
+    s.className = "chip";
+    s.textContent = c;
+    chips.appendChild(s);
+  });
+  $("modalBody").innerHTML = meta.bodyHtml || "";
+  $("modalBack").style.display = "flex";
+}
+function closeModal(){ $("modalBack").style.display="none"; }
+
+/* ========= Stato ========= */
+const STATE = { area:"", side:"", zone:"", zoneLabel:"", intensity:"", duration:"", notes:"", plan:null };
+
+/* ========= Zone ========= */
 const ZONES = {
   ginocchio: [
     ["mediale","Ginocchio interno (mediale)","dolore lato interno"],
@@ -372,244 +332,38 @@ const ZONES = {
     ["pollice","Pollice","dolore pollice"],
     ["indice","Indice","dolore indice"],
     ["medio","Medio","dolore dito medio"],
-    ["anulare_mignolo","Anulare/Mignolo","dolore lato ulnare"]
+    ["ulnare","Anulare/Mignolo","dolore lato ulnare"]
   ]
 };
 
-/* =========================
-   COORDINATE MARKER (default)
-   - Ogni marker ha un "wrap" target: derm/spine/lower/upper
-   - left/top in percent
-   ========================= */
-const DEFAULT_MARKERS = {
-  // COLONNA (tua immagine)
-  spine_L4L5: { wrap:"spine", left:26, top:78 },
-  spine_S1:   { wrap:"spine", left:24, top:90 },
-  spine_C6C7: { wrap:"spine", left:25, top:33 },
-  spine_C4C5: { wrap:"spine", left:25, top:28 },
-
-  // DERMATOMERI (vista posteriore / guida regionale)
-  derm_L4L5:  { wrap:"derm", left:50, top:62 },
-  derm_S1:    { wrap:"derm", left:50, top:80 },
-  derm_C6C7:  { wrap:"derm", left:50, top:18 },
-  derm_C4C5:  { wrap:"derm", left:50, top:12 },
-
-  // ARTI INFERIORI (dolore)
-  knee_med:   { wrap:"lower", left:44, top:44 },
-  knee_lat:   { wrap:"lower", left:56, top:44 },
-  knee_ant:   { wrap:"lower", left:50, top:40 },
-  knee_post:  { wrap:"lower", left:50, top:48 },
-
-  hip_inguine:{ wrap:"lower", left:50, top:28 },
-  hip_lat:    { wrap:"lower", left:58, top:30 },
-  hip_gluteo: { wrap:"lower", left:50, top:32 },
-
-  // ARTI SUPERIORI (dolore mano/spalla)
-  shoulder_lat:{ wrap:"upper", left:20, top:18 },
-  shoulder_ant:{ wrap:"upper", left:22, top:16 },
-  shoulder_post:{wrap:"upper", left:18, top:16 },
-
-  hand_thumb: { wrap:"upper", left:76, top:78 },
-  hand_index: { wrap:"upper", left:74, top:74 },
-  hand_middle:{ wrap:"upper", left:72, top:70 },
-  hand_ulnar: { wrap:"upper", left:66, top:72 }
-};
-
-/* =========================
-   PIANI (LOGICA)
-   - Sempre: per ginocchio mediale il primo è L4-L5
-   - Poi secondo: S1 (sacro)
-   - Altre aree: piani coerenti segmentari (demo)
-   ========================= */
-function buildPlan(area, zone){
-  // Ogni item: {id, title, chips[], bodyHtml, markerIds[]}
-  if(area === "ginocchio"){
-    // primo SEMPRE L4-L5
-    const painMarker =
-      zone==="mediale" ? "knee_med" :
-      zone==="laterale" ? "knee_lat" :
-      zone==="anteriore" ? "knee_ant" : "knee_post";
-
-    // secondo: S1 come “scarico” sacrale (demo visivo)
-    return {
-      dermView: "back",
-      points: [
-        pointCard("P1", "Prima applicazione: L4–L5",
-          ["L4–L5", "colonna", "priocezione"],
-          `
-          <p><b>Cosa stai guidando:</b> un reset afferente sul tratto lombare basso, utile quando il dolore al ginocchio (specie mediale) si accompagna a rigidità/iperattivazione della catena antero-mediale.</p>
-          <p><b>Riferimento palpatorio:</b> linea delle creste iliache ≈ livello di <b>L4</b>. Lo spazio <b>L4–L5</b> è subito sotto il processo spinoso di L4.</p>
-          <p><b>Razionale neuromuscolare (pratico):</b> lavorare su L4–L5 significa modulare il “gating” segmentario e la coordinazione dei pattern estensori/flessori dell’arto inferiore attraverso il controllo posturale centrale.</p>
-          `,
-          ["spine_L4L5","derm_L4L5"]
-        ),
-        pointCard("P2", "Seconda applicazione: S1 (sacro)",
-          ["S1", "bacino", "catena posteriore"],
-          `
-          <p><b>Obiettivo:</b> stabilizzare la componente sacrale/posteriore del carico e ridurre compensi sul ginocchio (specie se compare tensione su polpaccio/catena posteriore).</p>
-          <p><b>Riferimento palpatorio:</b> area sacrale alta in prossimità del livello <b>S1</b>.</p>
-          `,
-          ["spine_S1","derm_S1"]
-        ),
-        pointCard("DOL", "Zona dolore selezionata (ginocchio)",
-          ["dolore", "arto inferiore"],
-          `<p>Questo marker serve solo per orientarti sulla zona riferita dal paziente.</p>`,
-          [painMarker]
-        )
-      ]
-    };
-  }
-
-  if(area === "anca"){
-    const painMarker =
-      zone==="inguine" ? "hip_inguine" :
-      zone==="laterale" ? "hip_lat" : "hip_gluteo";
-
-    return {
-      dermView: "back",
-      points: [
-        pointCard("P1","Prima applicazione: L4–L5",
-          ["L4–L5","anca"],
-          `<p>Per anca, L4–L5 è spesso un riferimento utile per modulare pattern lombopelvici e coordinazione dell’arto inferiore.</p>`,
-          ["spine_L4L5","derm_L4L5"]
-        ),
-        pointCard("DOL","Zona dolore selezionata (anca)",
-          ["dolore","anca"],
-          `<p>Marker di orientamento sulla zona riferita.</p>`,
-          [painMarker]
-        )
-      ]
-    };
-  }
-
-  if(area === "lombare"){
-    return {
-      dermView:"back",
-      points: [
-        pointCard("P1","Prima applicazione: L4–L5",
-          ["L4–L5","lombare"],
-          `<p>Guida su tratto lombare basso con riferimento palpatorio (creste iliache ≈ L4).</p>`,
-          ["spine_L4L5","derm_L4L5"]
-        ),
-        pointCard("P2","Seconda applicazione: S1 (se area sacro-iliaca)",
-          ["S1","sacro-iliaca"],
-          `<p>Se il dolore è in zona sacro-iliaca, un riferimento su S1 può essere utile per riequilibrare la base del carico.</p>`,
-          ["spine_S1","derm_S1"]
-        )
-      ]
-    };
-  }
-
-  if(area === "cervicale"){
-    const seg = zone==="bassa" ? "C6C7" : "C4C5";
-    const spineMarker = (seg==="C6C7") ? "spine_C6C7" : "spine_C4C5";
-    const dermMarker  = (seg==="C6C7") ? "derm_C6C7" : "derm_C4C5";
-    return {
-      dermView:"back",
-      points: [
-        pointCard("P1",`Prima applicazione: ${seg}`,
-          [seg,"collo","cintura scapolare"],
-          `<p>Guida segmentaria cervicale: ${seg}. Marker su colonna come riferimento anatomico.</p>`,
-          [spineMarker, dermMarker]
-        )
-      ]
-    };
-  }
-
-  if(area === "spalla"){
-    const painMarker =
-      zone==="anteriore" ? "shoulder_ant" :
-      zone==="laterale" ? "shoulder_lat" : "shoulder_post";
-
-    return {
-      dermView:"upper",
-      points: [
-        pointCard("P1","Prima applicazione: C6–C7 (riferimento)",
-          ["C6–C7","spalla"],
-          `<p>Per spalla, un riferimento su C6–C7 è spesso utile per modulare la coordinazione della cintura scapolare (demo visivo).</p>`,
-          ["spine_C6C7","derm_C6C7"]
-        ),
-        pointCard("DOL","Zona dolore selezionata (spalla)",
-          ["dolore","arto superiore"],
-          `<p>Marker di orientamento sulla zona riferita.</p>`,
-          [painMarker]
-        )
-      ]
-    };
-  }
-
-  if(area === "mano"){
-    const painMarker =
-      zone==="pollice" ? "hand_thumb" :
-      zone==="indice" ? "hand_index" :
-      zone==="medio" ? "hand_middle" : "hand_ulnar";
-    const seg =
-      zone==="pollice" || zone==="indice" ? "C6" :
-      zone==="medio" ? "C7" : "C8–T1";
-
-    return {
-      dermView:"upper",
-      points: [
-        pointCard("P1","Prima applicazione: C6–C7 (riferimento)",
-          ["C6–C7","mano"],
-          `<p>Per mano/dita, un riferimento cervicale basso (C6–C7) aiuta a guidare l’afferenza del distretto dell’arto superiore (demo visivo).</p>`,
-          ["spine_C6C7","derm_C6C7"]
-        ),
-        pointCard("DOL",`Zona dolore selezionata (mano) – ${seg}`,
-          ["dolore","dita"],
-          `<p>Marker di orientamento sulla zona riferita (non è una diagnosi dermatomero).</p>`,
-          [painMarker]
-        )
-      ]
-    };
-  }
-
-  // fallback
-  return { dermView:"back", points:[] };
-}
-
-/* helper: crea card punto */
-function pointCard(id, title, chips, bodyHtml, markerIds){
-  return { id, title, chips, bodyHtml, markerIds };
-}
-
-/* =========================
-   UI: step
-   ========================= */
-const $ = (id)=>document.getElementById(id);
-
-function showStep(n){
-  STATE.step = n;
-  ["step1","step2","step3","step4"].forEach((s,i)=>$(s).classList.toggle("active", i===n-1));
-  $("bar").style.width = (((n-1)/3)*100) + "%";
-}
-
-/* =========================
-   Render zones
-   ========================= */
 function renderZones(area){
   const box = $("zones");
   box.innerHTML = "";
-  (ZONES[area] || []).forEach(([val, label, hint])=>{
+  (ZONES[area]||[]).forEach(([val,label,hint])=>{
     const btn = document.createElement("button");
     btn.type="button";
     btn.className="zoneBtn";
-    btn.dataset.zone = val;
+    btn.dataset.zone=val;
     btn.innerHTML = `<b>${label}</b><small>${hint}</small>`;
     btn.addEventListener("click", ()=>{
-      STATE.zone = val;
-      STATE.zoneLabel = label;
+      STATE.zone=val; STATE.zoneLabel=label;
       [...box.querySelectorAll(".zoneBtn")].forEach(b=>b.classList.toggle("selected", b.dataset.zone===val));
     });
     box.appendChild(btn);
   });
 }
 
-/* =========================
-   Map setup + markers
-   ========================= */
+/* ========= Immagini ========= */
+/* Qui evitiamo problemi con spazi: new URL("colonna L4 L5.png", location.href) encode automaticamente */
+const IMG = {
+  derm_front: "https://www.laguardiamedica.it/2019/contenuti/neurologia/images/derm_01.jpg",
+  derm_back:  "https://www.laguardiamedica.it/2019/contenuti/neurologia/images/derm_02.jpg",
+  derm_upper: "https://www.laguardiamedica.it/2019/contenuti/neurologia/images/derm_03.jpg",
+  derm_lower: "https://www.laguardiamedica.it/2019/contenuti/neurologia/images/derm_04.jpg",
+  spine:      new URL("colonna L4 L5.png", window.location.href).href
+};
+
 function setMapImages(dermView){
-  // derm view selection
   const dermSrc =
     dermView==="front" ? IMG.derm_front :
     dermView==="upper" ? IMG.derm_upper :
@@ -617,62 +371,42 @@ function setMapImages(dermView){
     IMG.derm_back;
 
   $("imgDerm").src  = dermSrc;
-  $("imgSpine").src = IMG.spine;
   $("imgLower").src = IMG.derm_lower;
   $("imgUpper").src = IMG.derm_upper;
+
+  // colonna: mostra errore se non trova
+  $("spineErr").style.display = "none";
+  $("imgSpine").onerror = ()=>{ $("spineErr").style.display="block"; };
+  $("imgSpine").src = IMG.spine;
 }
 
-/* Load marker positions (calibrazione) */
-function getMarkerPos(markerKey){
-  const saved = localStorage.getItem("markerPos:"+markerKey);
-  if(saved){
-    try{
-      const obj = JSON.parse(saved);
-      if(typeof obj.left==="number" && typeof obj.top==="number") return obj;
-    }catch(e){}
-  }
-  return { left: DEFAULT_MARKERS[markerKey].left, top: DEFAULT_MARKERS[markerKey].top };
-}
+/* ========= Marker coordinate (default) ========= */
+const POS = {
+  spine_L4L5:{wrap:"spine", left:26, top:78},
+  spine_S1:{wrap:"spine", left:24, top:90},
+  derm_L4L5:{wrap:"derm", left:50, top:62},
+  derm_S1:{wrap:"derm", left:50, top:80},
 
-/* Remove all markers from wraps */
-function clearAllMarkers(){
-  ["wrapDerm","wrapSpine","wrapLower","wrapUpper"].forEach(w=>{
-    const wrap = $(w);
-    [...wrap.querySelectorAll(".marker")].forEach(m=>m.remove());
-  });
-}
+  knee_med:{wrap:"lower", left:44, top:44},
+  knee_lat:{wrap:"lower", left:56, top:44},
+  knee_ant:{wrap:"lower", left:50, top:40},
+  knee_post:{wrap:"lower", left:50, top:48},
 
-/* Create marker element */
-function createMarker(markerKey, meta){
-  const m = document.createElement("div");
-  m.className = "marker show";
-  m.dataset.key = markerKey;
+  hip_inguine:{wrap:"lower", left:50, top:28},
+  hip_lat:{wrap:"lower", left:58, top:30},
+  hip_gluteo:{wrap:"lower", left:50, top:32},
 
-  const pos = getMarkerPos(markerKey);
-  m.style.left = pos.left + "%";
-  m.style.top  = pos.top + "%";
+  shoulder_ant:{wrap:"upper", left:22, top:16},
+  shoulder_lat:{wrap:"upper", left:20, top:18},
+  shoulder_post:{wrap:"upper", left:18, top:16},
 
-  m.innerHTML = `
-    <div class="dot"></div>
-    <div class="label">
-      ${meta.title}
-      ${meta.sub ? `<small>${meta.sub}</small>` : ``}
-    </div>
-  `;
+  hand_thumb:{wrap:"upper", left:76, top:78},
+  hand_index:{wrap:"upper", left:74, top:74},
+  hand_middle:{wrap:"upper", left:72, top:70},
+  hand_ulnar:{wrap:"upper", left:66, top:72}
+};
 
-  // click => modal detail
-  m.addEventListener("click", (ev)=>{
-    ev.stopPropagation();
-    openModal(meta);
-  });
-
-  // drag for calib mode
-  enableDragIfCalib(m);
-
-  return m;
-}
-
-function wrapElByName(name){
+function wrapEl(name){
   if(name==="derm") return $("wrapDerm");
   if(name==="spine") return $("wrapSpine");
   if(name==="lower") return $("wrapLower");
@@ -680,177 +414,191 @@ function wrapElByName(name){
   return $("wrapDerm");
 }
 
-/* Render plan markers */
+function clearMarkers(){
+  ["wrapDerm","wrapSpine","wrapLower","wrapUpper"].forEach(id=>{
+    const w = $(id);
+    [...w.querySelectorAll(".marker")].forEach(m=>m.remove());
+  });
+}
+
+function addMarker(key, meta){
+  const def = POS[key];
+  if(!def) return;
+  const m = document.createElement("div");
+  m.className="marker show";
+  m.style.left = def.left + "%";
+  m.style.top  = def.top + "%";
+  m.innerHTML = `
+    <div class="dot"></div>
+    <div class="label">
+      ${meta.title}
+      ${meta.sub ? `<small>${meta.sub}</small>` : ``}
+    </div>
+  `;
+  m.addEventListener("click",(e)=>{ e.stopPropagation(); openModal(meta); });
+  wrapEl(def.wrap).appendChild(m);
+}
+
+/* ========= Plan (logica) ========= */
+function planFor(area, zone){
+  if(area==="ginocchio"){
+    const pain =
+      zone==="mediale" ? "knee_med" :
+      zone==="laterale" ? "knee_lat" :
+      zone==="anteriore" ? "knee_ant" : "knee_post";
+
+    return {
+      dermView:"back",
+      markers:[
+        ["spine_L4L5", metaPoint("Prima applicazione: L4–L5",
+          ["L4–L5","colonna","controllo segmentario"],
+          `
+          <p><b>Perché L4–L5 come primo punto:</b> è un riferimento segmentario chiave per la regolazione del controllo dell’arto inferiore. In pratica stai “centrando” la base lombopelvica prima di lavorare sulle compensazioni periferiche.</p>
+          <p><b>Riferimento palpatorio:</b> linea creste iliache ≈ L4. Lo spazio <b>L4–L5</b> è subito sotto.</p>
+          `
+        )],
+        ["derm_L4L5", metaPoint("L4–L5 (guida sulla mappa)",
+          ["L4–L5","dermatomeri"],
+          `<p>Vista regionale: serve solo come orientamento visivo.</p>`,
+          "Guida regionale lombare"
+        )],
+        ["spine_S1", metaPoint("Seconda applicazione: S1 (sacro)",
+          ["S1","bacino","catena posteriore"],
+          `<p><b>Obiettivo:</b> stabilizzare la base sacrale e ridurre compensi sul ginocchio.</p>`,
+          "Riferimento sacrale"
+        )],
+        ["derm_S1", metaPoint("S1 (guida sulla mappa)",
+          ["S1","dermatomeri"],
+          `<p>Orientamento visivo S1.</p>`,
+          "Guida regionale sacrale"
+        )],
+        [pain, metaPoint("Zona dolore selezionata",
+          ["dolore","arto inferiore"],
+          `<p>Marker di orientamento sulla zona riferita dal paziente.</p>`,
+          "Marker dolore"
+        )]
+      ]
+    };
+  }
+
+  if(area==="anca"){
+    const pain = zone==="inguine" ? "hip_inguine" : zone==="laterale" ? "hip_lat" : "hip_gluteo";
+    return {
+      dermView:"back",
+      markers:[
+        ["spine_L4L5", metaPoint("Prima applicazione: L4–L5",
+          ["L4–L5","anca"],
+          `<p>Riferimento lombopelvico utile per modulare pattern dell’arto inferiore.</p>`
+        )],
+        ["derm_L4L5", metaPoint("L4–L5 (guida mappa)",
+          ["L4–L5","dermatomeri"],
+          `<p>Orientamento regionale.</p>`,
+          "Guida mappa"
+        )],
+        [pain, metaPoint("Zona dolore selezionata (anca)",
+          ["dolore","anca"],
+          `<p>Marker di orientamento sulla zona riferita.</p>`,
+          "Marker dolore"
+        )]
+      ]
+    };
+  }
+
+  if(area==="lombare"){
+    return {
+      dermView:"back",
+      markers:[
+        ["spine_L4L5", metaPoint("Prima applicazione: L4–L5",
+          ["L4–L5","lombare"],
+          `<p>Guida su tratto lombare basso con riferimento palpatorio.</p>`
+        )],
+        ["derm_L4L5", metaPoint("L4–L5 (guida mappa)",
+          ["L4–L5","dermatomeri"],
+          `<p>Orientamento regionale.</p>`,
+          "Guida mappa"
+        )],
+        ["spine_S1", metaPoint("Seconda applicazione: S1 (se base sacrale coinvolta)",
+          ["S1","sacro"],
+          `<p>Utile se il dolore scende verso sacro/area SI.</p>`
+        )]
+      ]
+    };
+  }
+
+  if(area==="spalla"){
+    const pain = zone==="anteriore" ? "shoulder_ant" : zone==="laterale" ? "shoulder_lat" : "shoulder_post";
+    return {
+      dermView:"upper",
+      markers:[
+        [pain, metaPoint("Zona dolore selezionata (spalla)",
+          ["dolore","arto superiore"],
+          `<p>Marker di orientamento sulla zona riferita.</p>`,
+          "Marker dolore"
+        )]
+      ]
+    };
+  }
+
+  if(area==="mano"){
+    const pain =
+      zone==="pollice" ? "hand_thumb" :
+      zone==="indice" ? "hand_index" :
+      zone==="medio" ? "hand_middle" : "hand_ulnar";
+    return {
+      dermView:"upper",
+      markers:[
+        [pain, metaPoint("Zona dolore selezionata (mano/dita)",
+          ["dolore","eccesso di carico locale"],
+          `<p>Marker di orientamento sulla zona riferita.</p>`,
+          "Marker dolore"
+        )]
+      ]
+    };
+  }
+
+  if(area==="cervicale"){
+    return {
+      dermView:"back",
+      markers:[]
+    };
+  }
+
+  return { dermView:"back", markers:[] };
+}
+
+function metaPoint(title, chips, bodyHtml, sub){
+  return { title, chips, bodyHtml, sub: sub || "Tocca per dettagli" };
+}
+
+/* ========= Render plan ========= */
 function renderPlan(plan){
-  clearAllMarkers();
+  clearMarkers();
   setMapImages(plan.dermView);
-
-  // Build a dictionary of marker explanations
-  const markerMeta = buildMarkerMeta(plan);
-
-  // Place markers into correct wraps
-  Object.keys(markerMeta).forEach(markerKey=>{
-    const def = DEFAULT_MARKERS[markerKey];
-    if(!def) return;
-    const wrap = wrapElByName(def.wrap);
-    wrap.appendChild(createMarker(markerKey, markerMeta[markerKey]));
-  });
+  plan.markers.forEach(([key, meta])=>addMarker(key, meta));
 }
 
-/* Build marker metadata from plan points */
-function buildMarkerMeta(plan){
-  const meta = {};
-  // For each point card, attach same detail to all its markerIds
-  plan.points.forEach(p=>{
-    p.markerIds.forEach(mid=>{
-      // set only if not set; prefer first assignment
-      if(!meta[mid]){
-        meta[mid] = {
-          title: p.title,
-          sub: (p.id==="DOL") ? "Marker zona dolore" : "Marker punto guidato",
-          chips: p.chips,
-          bodyHtml: p.bodyHtml
-        };
-      }
-    });
-  });
-
-  // Enrich specific markers with palpation hints if they exist
-  if(meta.spine_L4L5){
-    meta.spine_L4L5.sub = "Punto preciso L4–L5 (colonna)";
-    meta.spine_L4L5.bodyHtml += `
-      <hr>
-      <p><b>Palpazione rapida:</b> creste iliache → linea immaginaria = L4. Subito sotto = spazio L4–L5.</p>
-    `;
-  }
-  if(meta.derm_L4L5){
-    meta.derm_L4L5.sub = "Guida regionale lombare (mappa)";
-  }
-  if(meta.spine_S1){
-    meta.spine_S1.sub = "Riferimento sacrale (S1)";
-  }
-  return meta;
-}
-
-/* =========================
-   Modal
-   ========================= */
-function openModal(meta){
-  $("modalTitle").textContent = meta.title;
-  const chips = $("modalChips");
-  chips.innerHTML = "";
-  (meta.chips || []).forEach(c=>{
-    const s = document.createElement("span");
-    s.className = "chip";
-    s.textContent = c;
-    chips.appendChild(s);
-  });
-  $("modalBody").innerHTML = meta.bodyHtml || "";
-  $("modalBack").style.display = "flex";
-}
-function closeModal(){ $("modalBack").style.display="none"; }
-
-/* =========================
-   Calibrazione drag
-   ========================= */
-let CALIB = { enabled:false, dragging:false, marker:null, wrap:null };
-
-function enableDragIfCalib(markerEl){
-  markerEl.addEventListener("pointerdown", (ev)=>{
-    if(!CALIB.enabled) return;
-    ev.preventDefault();
-    CALIB.dragging = true;
-    CALIB.marker = markerEl;
-    const key = markerEl.dataset.key;
-    const def = DEFAULT_MARKERS[key];
-    CALIB.wrap = wrapElByName(def.wrap);
-    markerEl.setPointerCapture(ev.pointerId);
-  });
-
-  markerEl.addEventListener("pointermove", (ev)=>{
-    if(!CALIB.enabled || !CALIB.dragging || CALIB.marker!==markerEl) return;
-    ev.preventDefault();
-
-    const rect = CALIB.wrap.getBoundingClientRect();
-    const x = ev.clientX - rect.left;
-    const y = ev.clientY - rect.top;
-
-    const leftPct = Math.max(0, Math.min(100, (x/rect.width)*100));
-    const topPct  = Math.max(0, Math.min(100, (y/rect.height)*100));
-
-    markerEl.style.left = leftPct.toFixed(2) + "%";
-    markerEl.style.top  = topPct.toFixed(2) + "%";
-    $("calibHint").textContent = `${markerEl.dataset.key}: left ${leftPct.toFixed(2)}% | top ${topPct.toFixed(2)}%`;
-  });
-
-  markerEl.addEventListener("pointerup", (ev)=>{
-    if(!CALIB.enabled) return;
-    CALIB.dragging = false;
-    CALIB.marker = null;
-    CALIB.wrap = null;
-  });
-
-  markerEl.addEventListener("pointercancel", ()=>{
-    CALIB.dragging = false; CALIB.marker=null; CALIB.wrap=null;
-  });
-}
-
-function saveCalibration(){
-  // salva tutti i marker attualmente visibili
-  const all = document.querySelectorAll(".imgWrap .marker.show");
-  all.forEach(m=>{
-    const key = m.dataset.key;
-    if(!key) return;
-    const left = parseFloat(m.style.left);
-    const top  = parseFloat(m.style.top);
-    if(isFinite(left) && isFinite(top)){
-      localStorage.setItem("markerPos:"+key, JSON.stringify({left, top}));
-    }
-  });
-  alert("Calibrazione salvata su questo dispositivo.");
-}
-
-function resetCalibration(){
-  // elimina tutte le calibrazioni
-  Object.keys(DEFAULT_MARKERS).forEach(k=>localStorage.removeItem("markerPos:"+k));
-  alert("Calibrazione resettata. Ricarica la pagina.");
-}
-
-/* =========================
-   Summary
-   ========================= */
-function buildSummary(){
-  const p = STATE.plan;
-  const pts = (p?.points || []).filter(x=>x.id!=="DOL");
-
+/* ========= Summary + safety ========= */
+function summaryText(){
   const lines = [
     `Area: ${STATE.area}`,
     `Lato: ${STATE.side}`,
     `Zona: ${STATE.zoneLabel || "—"}`,
     `Intensità: ${STATE.intensity}`,
     `Durata: ${STATE.duration}`,
-    STATE.notes?.trim() ? `Note: ${STATE.notes.trim()}` : `Note: —`,
+    STATE.notes.trim() ? `Note: ${STATE.notes.trim()}` : `Note: —`,
     ``,
-    `Punti guidati (ordine):`
+    `Tocca i marker per aprire la scheda del punto.`
   ];
-
-  if(!pts.length){
-    lines.push(`—`);
-  } else {
-    pts.forEach((x,i)=>lines.push(`${i+1}) ${x.title}`));
+  if(STATE.area==="ginocchio"){
+    lines.push(``, `Ordine consigliato: 1) L4–L5  2) S1  3) Zona dolore (orientamento)`);
   }
-  lines.push(``, `Tocca i marker per i dettagli.`);
   return lines.join("\n");
 }
 
-/* =========================
-   Validazioni + safety
-   ========================= */
 function setSafety(){
   const n = Number(STATE.intensity);
   const warn = [];
   if(!isNaN(n) && n>=8) warn.push("Dolore molto intenso (8–10): valuta un consulto medico.");
-  if(STATE.duration==="<24h" && n>=7) warn.push("Dolore intenso improvviso: se peggiora o compare gonfiore importante, valuta un consulto medico.");
   const box = $("safety");
   if(warn.length){
     box.style.display="block";
@@ -861,15 +609,12 @@ function setSafety(){
   }
 }
 
-/* =========================
-   BUTTON HANDLERS
-   ========================= */
+/* ========= Eventi ========= */
 $("btnNext1").addEventListener("click", ()=>{
   const area = $("area").value;
   const side = $("side").value;
   if(!area || !side){ alert("Seleziona area e lato."); return; }
-  STATE.area = area;
-  STATE.side = side;
+  STATE.area = area; STATE.side = side;
   STATE.zone = ""; STATE.zoneLabel = "";
   renderZones(area);
   showStep(2);
@@ -886,18 +631,17 @@ $("btnNext3").addEventListener("click", ()=>{
   const intensity = $("intensity").value;
   const duration  = $("duration").value;
   const notes     = $("notes").value || "";
-
   const n = Number(intensity);
+
   if(intensity==="" || isNaN(n) || n<0 || n>10){ alert("Inserisci intensità 0–10."); return; }
   if(!duration){ alert("Seleziona la durata."); return; }
 
   STATE.intensity = intensity;
-  STATE.duration = duration;
-  STATE.notes = notes;
+  STATE.duration  = duration;
+  STATE.notes     = notes;
 
-  STATE.plan = buildPlan(STATE.area, STATE.zone);
-
-  $("summary").textContent = buildSummary();
+  STATE.plan = planFor(STATE.area, STATE.zone);
+  $("summary").textContent = summaryText();
   setSafety();
 
   renderPlan(STATE.plan);
@@ -905,14 +649,13 @@ $("btnNext3").addEventListener("click", ()=>{
 });
 
 $("btnRestart").addEventListener("click", ()=>{
-  // reset
-  Object.assign(STATE, { step:1, area:"", side:"", zone:"", zoneLabel:"", intensity:"", duration:"", notes:"", plan:null });
+  Object.assign(STATE, { area:"", side:"", zone:"", zoneLabel:"", intensity:"", duration:"", notes:"", plan:null });
   $("area").value=""; $("side").value="";
   $("zones").innerHTML="";
   $("intensity").value=""; $("duration").value=""; $("notes").value="";
   $("summary").textContent="";
   $("safety").style.display="none"; $("safety").innerHTML="";
-  clearAllMarkers();
+  clearMarkers();
   showStep(1);
 });
 
@@ -923,30 +666,14 @@ $("btnCopy").addEventListener("click", async ()=>{
   catch(e){ alert("Copia non disponibile. Seleziona e copia manualmente."); }
 });
 
-/* =========================
-   Modal events
-   ========================= */
 $("modalClose").addEventListener("click", closeModal);
-$("modalBack").addEventListener("click", (e)=>{
-  if(e.target === $("modalBack")) closeModal();
-});
+$("modalBack").addEventListener("click", (e)=>{ if(e.target === $("modalBack")) closeModal(); });
 
-/* =========================
-   Calib mode events
-   ========================= */
-$("calibMode").addEventListener("change", (e)=>{
-  CALIB.enabled = !!e.target.checked;
-  $("calibHint").textContent = CALIB.enabled ? "Calibrazione ON: trascina i marker" : "—";
-});
-$("saveCalibBtn").addEventListener("click", saveCalibration);
-$("resetCalibBtn").addEventListener("click", resetCalibration);
-
-/* =========================
-   Init
-   ========================= */
 showStep(1);
 </script>
 </body>
 </html>
+
+
 
 
