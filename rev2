@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Demo dolore + dermatomeri + punti</title>
+  <style>
+    body{font-family:system-ui;margin:0;background:#f6f7fb;color:#111}
+    .wrap{max-width:1100px;margin:0 auto;padding:18px}
+    .card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 6px 18px rgba(0,0,0,.06)}
+    .step{display:none}
+    .step.active{display:block}
+    .pill{display:inline-block;background:#eef1ff;color:#1f5eff;padding:4px 10px;border-radius:999px;font-size:12px;margin-bottom:10px}
+    .row{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:980px){.row.two{grid-template-columns:1.05fr .95fr}}
+    label{font-size:13px;color:#333;display:block;margin-bottom:6px}
+    select,input,textarea{width:100%;padding:10px 12px;border:1px solid #d9dce6;border-radius:10px;font-size:16px;background:#fff}
+    textarea{min-height:90px;resize:vertical}
+    .btnbar{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+    button{appearance:none;border:0;border-radius:12px;padding:10px 14px;font-size:16px;cursor:pointer}
+    button.primary{background:#1f5eff;color:#fff}
+    button.secondary{background:#eef1ff;color:#1f5eff}
+    button.ghost{background:transparent;color:#1f5eff;border:1px solid #cfd6ff}
+    .progress{height:10px;background:#e9ecf7;border-radius:999px;overflow:hidden;margin:12px 0 16px}
+    .bar{height:100%;width:0%;background:#1f5eff;transition:width .25s ease}
+
+    .zones{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+    @media(min-width:980px){.zones{grid-template-columns:1fr 1fr}}
+    .zoneBtn{width:100%;text-align:left;border:1px solid #d9dce6;background:#fff;border-radius:14px;padding:12px}
+    .zoneBtn b{display:block;margin-bottom:6px}
+    .zoneBtn small{color:#555}
+    .zoneBtn.selected{border-color:#1f5eff;box-shadow:0 0 0 3px rgba(31,94,255,.15)}
+
+    .result{background:#f7f9ff;border:1px solid #dfe6ff;padding:12px;border-radius:12px;white-space:pre-wrap}
+    .small{font-size:12px;color:#555;margin-top:8px}
+    .warn{background:#fff5f5;border:1px solid #ffd6d6;color:#7a1b1b;padding:12px;border-radius:12px;margin-top:12px}
+
+    /* Viewer mappe */
+    .mapBox{border:1px solid #e6e8f2;border-radius:14px;padding:12px;background:#fff}
+    .mapGrid{display:grid;grid-template-columns:1fr;gap:10px}
+    @media(min-width:980px){.mapGrid{grid-template-columns:1fr 1fr}}
+    .pane{border:1px solid #eef1ff;border-radius:14px;padding:10px;background:#fbfcff}
+    .pane b{display:block;margin-bottom:6px}
+
+    /* --- Immagine con overlay marker --- */
+    .imgWrap{position:relative;border-radius:12px;overflow:hidden;border:1px solid rgba(0,0,0,.06);background:#fff}
+    .imgWrap img{width:100%;height:auto;display:block}
+    .marker{
+      position:absolute;
+      transform:translate(-50%,-50%);
+      display:none;
+      z-index:3;
+      pointer-events:none;
+    }
+    .marker.show{display:block}
+    .dot{
+      width:14px;height:14px;border-radius:50%;
+      background:#1f5eff;
+      box-shadow:0 0 0 4px rgba(31,94,255,.18);
+      border:2px solid #fff;
+    }
+    .label{
+      margin-top:6px;
+      background:rgba(255,255,255,.95);
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:10px;
+      padding:6px 8px;
+      font-size:12px;
+      color:#111;
+      white-space:nowrap;
+      box-shadow:0 6px 18px rgba(0,0,0,.08);
+    }
+    .label small{display:block;color:#555;font-size:11px;margin-top:2px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h2 style="margin:0 0 6px;">Domande dolore + dermatomeri + punti (overlay)</h2>
+    <div class="small">Demo. Non è diagnosi. I marker sono “guidati” e ripetibili con riferimenti anatomici.</div>
+
+    <div class="progress"><div class="bar" id="bar"></div></div>
+
+    <!-- STEP 1 -->
+    <section class="step active" id="step1">
+      <div class="pill">Passo 1/4</div>
+      <p><b>Dove senti dolore?</b></p>
+      <div class="row two">
+        <div>
+          <label>Area</label>
+          <select id="area">
+            <option value="">Seleziona…</option>
+            <option value="ginocchio">Ginocchio</option>
+          </select>
+        </div>
+        <div>
+          <label>Lato</label>
+          <select id="side">
+            <option value="">Seleziona…</option>
+            <option value="sinistro">Sinistro</option>
+            <option value="destro">Destro</option>
+            <option value="bilaterale">Bilaterale</option>
+          </select>
+        </div>
+      </div>
+      <div class="btnbar">
+        <button type="button" class="primary" onclick="next1()">Avanti</button>
+      </div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="step" id="step2">
+      <div class="pill">Passo 2/4</div>
+      <p><b>Seleziona la zona</b></p>
+      <div class="zones" id="zones"></div>
+      <div class="btnbar">
+        <button type="button" class="secondary" onclick="showStep(1)">Indietro</button>
+        <button type="button" class="primary" onclick="next2()">Avanti</button>
+      </div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="step" id="step3">
+      <div class="pill">Passo 3/4</div>
+      <p><b>Dettagli</b></p>
+      <div class="row two">
+        <div>
+          <label>Intensità (0–10)</label>
+          <input id="intensity" type="number" min="0" max="10" step="1" placeholder="Es. 6" />
+        </div>
+        <div>
+          <label>Da quanto tempo?</label>
+          <select id="duration">
+            <option value="">Seleziona…</option>
+            <option value="<24h">Meno di 24 ore</option>
+            <option value="1-3g">1–3 giorni</option>
+            <option value="4-14g">4–14 giorni</option>
+            <option value=">2s">Oltre 2 settimane</option>
+            <option value=">3m">Oltre 3 mesi</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="btnbar">
+        <button type="button" class="secondary" onclick="showStep(2)">Indietro</button>
+        <button type="button" class="primary" onclick="next3()">Vedi guida</button>
+      </div>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="step" id="step4">
+      <div class="pill">Passo 4/4</div>
+      <p><b>Guida di applicazione (con marker)</b></p>
+
+      <div class="row two">
+        <div>
+          <div class="result" id="summary"></div>
+          <div class="warn" id="safety" style="display:none;"></div>
+          <div class="btnbar">
+            <button type="button" class="ghost" onclick="restart()">Ricomincia</button>
+            <button type="button" class="primary" onclick="copyText()">Copia testo</button>
+          </div>
+
+          <div class="small">
+            <b>Come trovare L4–L5 (ripetibile):</b><br/>
+            appoggia i pollici sulle <b>creste iliache</b> e traccia una linea immaginaria tra i punti più alti:
+            quella linea incrocia il livello di <b>L4</b> (processo spinoso). Lo spazio <b>L4–L5</b> è <b>subito sotto</b>.
+          </div>
+        </div>
+
+        <div class="mapBox">
+          <div class="mapGrid">
+            <div class="pane">
+              <b>Colonna (marker L4–L5)</b>
+              <div class="imgWrap" id="wrapBack">
+                <img id="imgBack" alt="Dermatomeri posteriore">
+                <!-- Marker L4-L5 -->
+                <div class="marker" id="mkL4L5" style="left:50%; top:62%;">
+                  <div class="dot"></div>
+                  <div class="label">
+                    L4–L5 (prima applicazione)
+                    <small>Linea creste iliache ≈ L4 → subito sotto = L4–L5</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pane">
+              <b>Arto inferiore (marker dolore)</b>
+              <div class="imgWrap" id="wrapLower">
+                <img id="imgLower" alt="Dermatomeri arti inferiori">
+                <!-- Marker ginocchio interno -->
+                <div class="marker" id="mkKneeMed" style="left:44%; top:44%;">
+                  <div class="dot"></div>
+                  <div class="label">
+                    Ginocchio mediale (interno)
+                    <small>zona dolore riferita</small>
+                  </div>
+                </div>
+
+                <!-- (opzionale) ginocchio laterale -->
+                <div class="marker" id="mkKneeLat" style="left:56%; top:44%;">
+                  <div class="dot"></div>
+                  <div class="label">
+                    Ginocchio laterale (esterno)
+                    <small>zona dolore riferita</small>
+                  </div>
+                </div>
+
+                <!-- (opzionale) ginocchio posteriore -->
+                <div class="marker" id="mkKneePost" style="left:50%; top:48%;">
+                  <div class="dot"></div>
+                  <div class="label">
+                    Cavo popliteo (posteriore)
+                    <small>zona dolore riferita</small>
+                  </div>
+                </div>
+
+                <!-- (opzionale) ginocchio anteriore -->
+                <div class="marker" id="mkKneeAnt" style="left:50%; top:40%;">
+                  <div class="dot"></div>
+                  <div class="label">
+                    Rotula (anteriore)
+                    <small>zona dolore riferita</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="small">
+                Se un marker non è “preciso” sul tuo disegno, puoi spostare i valori <b>left/top</b> dei marker (percentuali).
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+/* --- IMMAGINI --- (puoi sostituire con le tue) */
+var IMG = {
+  back:  "https://www.laguardiamedica.it/2019/contenuti/neurologia/images/derm_02.jpg",
+  lower: "https://www.laguardiamedica.it/2019/contenuti/neurologia/images/derm_04.jpg"
+};
+
+var STATE = { step:1, area:"", side:"", zone:"", zoneLabel:"" };
+
+var ZONES = {
+  ginocchio: [
+    ["mediale","Interno (mediale)","Dolore lato interno"],
+    ["laterale","Esterno (laterale)","Dolore lato esterno"],
+    ["anteriore","Anteriore (rotula)","Dolore davanti al ginocchio"],
+    ["posteriore","Posteriore (cavo popliteo)","Dolore dietro al ginocchio"]
+  ]
+};
+
+function showStep(n){
+  STATE.step = n;
+  document.getElementById("step1").classList.toggle("active", n===1);
+  document.getElementById("step2").classList.toggle("active", n===2);
+  document.getElementById("step3").classList.toggle("active", n===3);
+  document.getElementById("step4").classList.toggle("active", n===4);
+  document.getElementById("bar").style.width = (((n-1)/3)*100) + "%";
+}
+
+function renderZones(area){
+  var box = document.getElementById("zones");
+  box.innerHTML = "";
+  (ZONES[area]||[]).forEach(function(z){
+    var btn = document.createElement("button");
+    btn.type="button";
+    btn.className="zoneBtn";
+    btn.setAttribute("data-zone", z[0]);
+    btn.onclick = function(){ selectZone(z[0], z[1]); };
+    btn.innerHTML = "<b>"+z[1]+"</b><small>"+z[2]+"</small>";
+    box.appendChild(btn);
+  });
+}
+
+function selectZone(val, label){
+  STATE.zone = val;
+  STATE.zoneLabel = label;
+  document.querySelectorAll("#zones .zoneBtn").forEach(function(b){
+    b.classList.toggle("selected", b.getAttribute("data-zone")===val);
+  });
+}
+
+/* --- Regola clinica richiesta: primo dispositivo sempre L4-L5 --- */
+function plan(area, zone){
+  // per questa demo: qualsiasi ginocchio -> L4-L5 primo
+  // (poi potrai aggiungere un secondo punto diverso in base alla zona)
+  var first = { name:"L4–L5 (prima applicazione)", code:"L4L5" };
+
+  var painMarker = "mkKneeMed";
+  if(zone==="laterale") painMarker="mkKneeLat";
+  if(zone==="anteriore") painMarker="mkKneeAnt";
+  if(zone==="posteriore") painMarker="mkKneePost";
+
+  return {
+    first:first,
+    seg:"Segmento indicativo associato al dolore (demo): L4–L5 / L3–L4",
+    painMarker:painMarker
+  };
+}
+
+function hideAllMarkers(){
+  ["mkL4L5","mkKneeMed","mkKneeLat","mkKneeAnt","mkKneePost"].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.classList.remove("show");
+  });
+}
+
+function setImages(){
+  document.getElementById("imgBack").src = IMG.back;
+  document.getElementById("imgLower").src = IMG.lower;
+}
+
+function next1(){
+  var area = document.getElementById("area").value;
+  var side = document.getElementById("side").value;
+  if(!area || !side){ alert("Seleziona area e lato."); return; }
+  STATE.area = area;
+  STATE.side = side;
+  STATE.zone=""; STATE.zoneLabel="";
+  renderZones(area);
+  showStep(2);
+}
+
+function next2(){
+  if(!STATE.zone){ alert("Seleziona una zona."); return; }
+  showStep(3);
+}
+
+function next3(){
+  var intensity = document.getElementById("intensity").value;
+  var duration  = document.getElementById("duration").value;
+  var n = Number(intensity);
+  if(intensity==="" || isNaN(n) || n<0 || n>10){ alert("Inserisci intensità 0–10."); return; }
+  if(!duration){ alert("Seleziona la durata."); return; }
+
+  var p = plan(STATE.area, STATE.zone);
+
+  var text = [
+    "Area: " + STATE.area,
+    "Lato: " + STATE.side,
+    "Zona: " + (STATE.zoneLabel || "—"),
+    "Intensità: " + intensity,
+    "Durata: " + duration,
+    "",
+    "PRIMO dispositivo: " + p.first.name,
+    p.seg,
+    "",
+    "Guida: vedi marker sulla mappa (colonna + arto)."
+  ].join("\n");
+  document.getElementById("summary").textContent = text;
+
+  // Safety minimo
+  var safety = [];
+  if(n>=8) safety.push("Dolore molto intenso (8–10): valuta un consulto medico.");
+  var se = document.getElementById("safety");
+  if(safety.length){
+    se.style.display="block";
+    se.innerHTML="<b>Attenzione:</b><ul>"+safety.map(s=>"<li>"+s+"</li>").join("")+"</ul>";
+  } else {
+    se.style.display="none"; se.innerHTML="";
+  }
+
+  // Mappe + marker
+  setImages();
+  hideAllMarkers();
+  document.getElementById("mkL4L5").classList.add("show");           // sempre visibile come primo
+  document.getElementById(p.painMarker).classList.add("show");       // in base alla zona dolore
+
+  showStep(4);
+}
+
+function restart(){
+  STATE = { step:1, area:"", side:"", zone:"", zoneLabel:"" };
+  document.getElementById("area").value="";
+  document.getElementById("side").value="";
+  document.getElementById("zones").innerHTML="";
+  document.getElementById("intensity").value="";
+  document.getElementById("duration").value="";
+  document.getElementById("summary").textContent="";
+  var se=document.getElementById("safety"); se.style.display="none"; se.innerHTML="";
+  hideAllMarkers();
+  showStep(1);
+}
+
+function copyText(){
+  var t=document.getElementById("summary").textContent||"";
+  if(!t){alert("Nulla da copiare.");return;}
+  navigator.clipboard?.writeText(t).then(()=>alert("Testo copiato.")).catch(()=>alert("Copia non disponibile."));
+}
+
+showStep(1);
+</script>
+</body>
+</html>
