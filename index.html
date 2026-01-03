@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Dolore + Dermatomeri + Marker cliccabili</title>
+  <title>Dolore + Dermatomeri + Marker (popup professionale + paziente)</title>
   <style>
     :root{--blue:#1f5eff;--bg:#f6f7fb;--card:#fff;--line:#d9dce6;--soft:#eef1ff;--text:#111;--muted:#555;}
     body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
@@ -49,6 +49,7 @@
     .imgWrap img{width:100%;height:auto;display:block}
     .fallback{display:none;padding:10px;font-size:12px;color:#7a1b1b;background:#fff5f5;border-top:1px solid #ffd6d6}
 
+    /* ✅ MARKER: solo bollino piccolo */
     .marker{
       position:absolute;
       transform:translate(-50%,-50%);
@@ -61,47 +62,54 @@
     }
     .marker.show{display:block}
     .dot{
-      width:14px;height:14px;border-radius:50%;
+      width:10px;height:10px;border-radius:50%;
       background:var(--blue);
-      box-shadow:0 0 0 4px rgba(31,94,255,.18);
       border:2px solid #fff;
+      box-shadow:0 0 0 3px rgba(31,94,255,.16);
     }
-    .label{
-      margin-top:6px;
-      background:rgba(255,255,255,.96);
-      border:1px solid rgba(0,0,0,.08);
-      border-radius:12px;
-      padding:6px 8px;
-      font-size:12px;
-      color:#111;
-      box-shadow:0 6px 18px rgba(0,0,0,.08);
-      max-width:280px;
+    .dot:hover{
+      box-shadow:0 0 0 5px rgba(31,94,255,.18);
     }
-    .label small{display:block;color:#555;font-size:11px;margin-top:2px}
 
     /* Modal */
     .modalBack{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:18px;z-index:99}
-    .modal{max-width:760px;width:100%;background:#fff;border-radius:16px;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+    .modal{max-width:820px;width:100%;background:#fff;border-radius:16px;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
     .modalHeader{display:flex;align-items:center;justify-content:space-between;gap:10px}
     .closeBtn{background:transparent;border:1px solid #ddd;border-radius:10px;padding:6px 10px;font-size:14px;cursor:pointer}
     .chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
     .chip{background:var(--soft);color:var(--blue);padding:4px 10px;border-radius:999px;font-size:12px}
-    .modalBody{font-size:14px;line-height:1.45;color:#222}
+    .modalBody{font-size:14px;line-height:1.5;color:#222}
+    .sec{border:1px solid #eef1ff;border-radius:14px;padding:12px;background:#fbfcff;margin-top:10px}
+    .secTitle{font-weight:700;margin:0 0 6px}
+    .patient{
+      color:var(--blue);
+      font-style:italic;
+      background:#f7f9ff;
+      border-color:#dfe6ff;
+    }
+    .vertebraLine{
+      margin-top:10px;
+      padding:10px;
+      border-radius:12px;
+      border:1px solid #e6e8f2;
+      background:#fff;
+    }
+    .vertebraLine b{color:var(--blue)}
+    code{background:#f1f3ff;padding:2px 6px;border-radius:8px}
 
     /* Posologia card */
     .doseCard{background:#fff;border:1px solid #e6e8f2;border-radius:16px;padding:12px;margin-top:12px}
     .doseCard ul{margin:8px 0 0;padding-left:18px}
     .doseCard li{margin:6px 0}
     .doseWarn{background:#fff5f5;border:1px solid #ffd6d6;color:#7a1b1b;border-radius:14px;padding:10px;margin-top:10px}
-    code{background:#f1f3ff;padding:2px 6px;border-radius:8px}
   </style>
 </head>
 
 <body>
 <div class="wrap">
   <div class="card">
-    <h2>Demo — domande dolore + mappe + marker cliccabili</h2>
-    <div class="small">Demo informativa (non diagnosi). Tocca i marker per vedere spiegazione e riferimento anatomico.</div>
+    <h2>Demo — domande dolore + mappe + marker (popup)</h2>
+    <div class="small">Tocca i bollini blu: si apre una spiegazione professionale + una spiegazione semplice per il paziente + vertebra/punto.</div>
 
     <div class="progress"><div class="bar" id="bar"></div></div>
 
@@ -191,14 +199,13 @@
     <!-- STEP 4 -->
     <section class="step" id="step4">
       <div class="pill">Passo 4/4</div>
-      <p><b>Guida (mappe + marker cliccabili)</b></p>
+      <p><b>Guida</b></p>
 
       <div class="row two">
         <div>
           <div class="result" id="summary"></div>
           <div class="warn" id="safety" style="display:none;"></div>
 
-          <!-- POSOLOGIA SEMPRE VISIBILE ANCHE QUI -->
           <div class="doseCard" id="doseInline"></div>
 
           <div class="btnbar">
@@ -229,8 +236,7 @@
                 <img id="imgSpine" alt="Colonna L4 L5">
                 <div class="fallback" id="spineFallback">
                   <b>Immagine colonna non trovata.</b><br>
-                  Verifica che il file nel repo si chiami esattamente <code>colonna L4 L5.png</code>
-                  e sia nella stessa cartella di <code>index.html</code>.
+                  Nome file richiesto: <code>colonna L4 L5.png</code> (stessa cartella di <code>index.html</code>).
                 </div>
               </div>
             </div>
@@ -299,7 +305,20 @@
       <button class="closeBtn" id="modalClose" type="button">Chiudi</button>
     </div>
     <div class="chips" id="modalChips"></div>
-    <div class="modalBody" id="modalBody"></div>
+
+    <div class="modalBody">
+      <div class="vertebraLine" id="modalVertebra"></div>
+
+      <div class="sec" id="modalProf">
+        <div class="secTitle">Razionale scientifico / professionale</div>
+        <div id="modalProfBody"></div>
+      </div>
+
+      <div class="sec patient" id="modalPatient">
+        <div class="secTitle">Spiegazione semplice per il paziente</div>
+        <div id="modalPatientBody"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -312,13 +331,10 @@
     spine: "./colonna%20L4%20L5.png"
   };
 
-  // POSOLOGIA (usata sia in pagina dedicata sia in testo copiabile)
   const DOSING = {
-    morningHours: 2,
-    eveningHours: 2,
+    morningHours: 2, eveningHours: 2,
     allowNightIfPersist: true,
-    cycleOnDays: 5,
-    cycleOffDays: 2,
+    cycleOnDays: 5, cycleOffDays: 2,
     intolerance: ["mal di testa","stanchezza","nausea","dolore peggiore"]
   };
 
@@ -383,31 +399,26 @@
     ]
   };
 
-  // ✅ FIX: marker mano spostati più in basso (visibili sulla mano)
+  /* coordinate marker (modificabili) */
   const DEFAULT_POS = {
-    // colonna + derm lombare
     spine_L4L5:{wrap:"spine", left:26, top:78},
     spine_S1:{wrap:"spine", left:24, top:90},
     derm_L4L5:{wrap:"derm", left:50, top:62},
     derm_S1:{wrap:"derm", left:50, top:80},
 
-    // ginocchio
     knee_med:{wrap:"lower", left:44, top:44},
     knee_lat:{wrap:"lower", left:56, top:44},
     knee_ant:{wrap:"lower", left:50, top:40},
     knee_post:{wrap:"lower", left:50, top:48},
 
-    // anca
     hip_inguine:{wrap:"lower", left:50, top:28},
     hip_lat:{wrap:"lower", left:58, top:30},
     hip_gluteo:{wrap:"lower", left:50, top:32},
 
-    // spalla
     shoulder_ant:{wrap:"upper", left:22, top:16},
     shoulder_lat:{wrap:"upper", left:20, top:18},
     shoulder_post:{wrap:"upper", left:18, top:16},
 
-    // ✅ MANO/DITA (NUOVE COORDINATE PIÙ “BASSE”)
     hand_thumb:{wrap:"upper", left:74, top:90},
     hand_index:{wrap:"upper", left:72, top:86},
     hand_middle:{wrap:"upper", left:70, top:82},
@@ -425,11 +436,24 @@
     $("bar").style.width = (((idx-1)/(barSteps-1))*100) + "%";
   }
 
-  function openModal({title, chips, bodyHtml}){
-    $("modalTitle").textContent = title;
+  function openModal(meta){
+    $("modalTitle").textContent = meta.title || "Dettaglio";
+
     const c = $("modalChips"); c.innerHTML="";
-    (chips||[]).forEach(x=>{ const s=document.createElement("span"); s.className="chip"; s.textContent=x; c.appendChild(s); });
-    $("modalBody").innerHTML = bodyHtml||"";
+    (meta.chips||[]).forEach(x=>{
+      const s=document.createElement("span");
+      s.className="chip";
+      s.textContent=x;
+      c.appendChild(s);
+    });
+
+    $("modalVertebra").innerHTML = meta.vertebra
+      ? `Punto / vertebra di applicazione: <b>${meta.vertebra}</b>`
+      : `Punto / vertebra di applicazione: <b>—</b>`;
+
+    $("modalProfBody").innerHTML = meta.profHtml || "<p>—</p>";
+    $("modalPatientBody").innerHTML = meta.patientHtml || "<p>—</p>";
+
     $("modalBack").style.display="flex";
   }
   function closeModal(){ $("modalBack").style.display="none"; }
@@ -477,11 +501,13 @@
     m.className = "marker show";
     m.style.left = def.left + "%";
     m.style.top  = def.top + "%";
-    m.innerHTML = `<div class="dot"></div><div class="label">${meta.title}<small>${meta.sub||""}</small></div>`;
+    m.innerHTML = `<div class="dot" title="Tocca per dettagli"></div>`;
+
     m.addEventListener("click",(ev)=>{
       ev.stopPropagation();
       openModal(meta);
     });
+
     wrap.appendChild(m);
   }
 
@@ -501,21 +527,27 @@
       key:"spine_L4L5",
       meta:{
         title:"L4–L5 (prima applicazione)",
-        sub:"punto preciso su colonna",
-        chips:["L4–L5","riferimento palpatorio"],
-        bodyHtml:`
-          <p><b>Punto:</b> spazio interspinoso L4–L5.</p>
-          <p><b>Come trovarlo:</b> linea tra le creste iliache ≈ L4. Lo spazio <b>L4–L5</b> è subito sotto.</p>
+        vertebra:"L4–L5",
+        chips:["L4–L5","colonna"],
+        profHtml:`
+          <p><b>Obiettivo:</b> riferimento segmentario lombare basso per modulazione afferente segmentaria e miglior controllo lombo-pelvico.</p>
+          <p><b>Razionalità clinica:</b> riduzione dei compensi e miglioramento del pattern di carico dell’arto (in funzione dell’area dolorosa scelta).</p>
+        `,
+        patientHtml:`
+          <p>Metti il primo dispositivo <b>alla base della schiena</b>, nel punto indicato come <b>L4–L5</b>.
+          Serve a “calmare” i segnali che mantengono la tensione e a rendere il movimento più stabile.</p>
         `
       }
     });
+
     markers.push({
       key:"derm_L4L5",
       meta:{
         title:"L4–L5 (guida dermatomeri)",
-        sub:"orientamento regionale",
-        chips:["L4–L5","mappa"],
-        bodyHtml:`<p>Marker regionale su mappa (orientativo).</p>`
+        vertebra:"L4–L5",
+        chips:["mappa","orientamento"],
+        profHtml:`<p>Marker regionale su mappa dermatomeri: guida visiva, non punto millimetrico.</p>`,
+        patientHtml:`<p>Questo bollino serve solo a <b>orientarti</b> sulla mappa del corpo.</p>`
       }
     });
   }
@@ -527,7 +559,6 @@
     const markers=[];
     const points=[];
 
-    // ✅ Base: L4–L5 sempre
     addBaseL4L5(points, markers);
 
     if(area==="ginocchio"){
@@ -537,56 +568,116 @@
       points.push("2) Seconda applicazione: S1 (sacro)");
       markers.push({
         key:"spine_S1",
-        meta:{ title:"S1 (seconda applicazione)", sub:"riferimento sacrale", chips:["S1","sacro"], bodyHtml:`<p>Riferimento sacrale (demo).</p>` }
+        meta:{
+          title:"S1 (seconda applicazione)",
+          vertebra:"S1",
+          chips:["S1","sacro"],
+          profHtml:`<p><b>Obiettivo:</b> supporto del controllo lombo-sacrale e integrazione catena posteriore.</p>`,
+          patientHtml:`<p>Metti il secondo dispositivo sul <b>sacro</b> (alla base della schiena).
+          Aiuta a rendere più stabile bacino e appoggio.</p>`
+        }
       });
       markers.push({
         key:"derm_S1",
-        meta:{ title:"S1 (guida dermatomeri)", sub:"orientamento regionale", chips:["S1","mappa"], bodyHtml:`<p>Guida regionale su mappa.</p>` }
+        meta:{
+          title:"S1 (guida dermatomeri)",
+          vertebra:"S1",
+          chips:["mappa","orientamento"],
+          profHtml:`<p>Guida regionale su mappa dermatomeri.</p>`,
+          patientHtml:`<p>Questo bollino serve solo per orientarti sulla mappa.</p>`
+        }
       });
 
       points.push("Zona dolore: ginocchio (marker orientativo)");
-      markers.push({ key:painKey, meta:{ title:"Zona dolore (ginocchio)", sub:"orientativo", chips:["dolore"], bodyHtml:`<p>Marker orientativo sulla zona selezionata.</p>` }});
+      markers.push({
+        key:painKey,
+        meta:{
+          title:"Zona dolore (ginocchio)",
+          vertebra:"—",
+          chips:["dolore","arto inferiore"],
+          profHtml:`<p>Marker orientativo della sede riferita: utile per correlazione clinica e monitoraggio.</p>`,
+          patientHtml:`<p>Qui è dove tu senti il dolore (serve per ricordare e monitorare).</p>`
+        }
+      });
+    }
+
+    else if(area==="mano"){
+      dermView="upper";
+      const painKey = zone==="pollice" ? "hand_thumb" : zone==="indice" ? "hand_index" : zone==="medio" ? "hand_middle" : "hand_ulnar";
+
+      points.push("Zona dolore: mano/dita (marker orientativo)");
+      markers.push({
+        key:painKey,
+        meta:{
+          title:`Zona dolore (${STATE.zoneLabel})`,
+          vertebra:"—",
+          chips:["dolore","mano"],
+          profHtml:`<p>Marker orientativo per distretto mano/dita (utile a tracciare l’evoluzione dei sintomi).</p>`,
+          patientHtml:`<p>Questo bollino indica dove senti il dolore nella mano.</p>`
+        }
+      });
     }
 
     else if(area==="anca"){
       dermView="back";
       const painKey = zone==="inguine" ? "hip_inguine" : zone==="laterale" ? "hip_lat" : "hip_gluteo";
       points.push("Zona dolore: anca (marker orientativo)");
-      markers.push({ key:painKey, meta:{ title:"Zona dolore (anca)", sub:"orientativo", chips:["dolore"], bodyHtml:`<p>Marker orientativo sulla zona selezionata.</p>` }});
-    }
-
-    else if(area==="lombare"){
-      dermView="back";
-      points.push("2) (Opzionale) Seconda applicazione: S1 se componente sacrale");
-      markers.push({ key:"spine_S1", meta:{ title:"S1 (opzionale)", sub:"se dolore sacrale", chips:["S1"], bodyHtml:`<p>Usalo se la componente è sacrale.</p>` }});
-      markers.push({ key:"derm_S1", meta:{ title:"S1 (mappa)", sub:"orientativo", chips:["S1","mappa"], bodyHtml:`<p>Guida regionale su mappa.</p>` }});
+      markers.push({
+        key:painKey,
+        meta:{
+          title:"Zona dolore (anca)",
+          vertebra:"—",
+          chips:["dolore","anca"],
+          profHtml:`<p>Marker orientativo del dolore d’anca riferito.</p>`,
+          patientHtml:`<p>Questo bollino indica dove senti dolore all’anca.</p>`
+        }
+      });
     }
 
     else if(area==="spalla"){
       dermView="upper";
       const painKey = zone==="anteriore" ? "shoulder_ant" : zone==="laterale" ? "shoulder_lat" : "shoulder_post";
       points.push("Zona dolore: spalla (marker orientativo)");
-      markers.push({ key:painKey, meta:{ title:"Zona dolore (spalla)", sub:"orientativo", chips:["dolore","arto sup"], bodyHtml:`<p>Marker orientativo sulla zona selezionata.</p>` }});
-    }
-
-    else if(area==="mano"){
-      dermView="upper";
-      const painKey = zone==="pollice" ? "hand_thumb" : zone==="indice" ? "hand_index" : zone==="medio" ? "hand_middle" : "hand_ulnar";
-      points.push("Zona dolore: mano/dita (marker orientativo)");
       markers.push({
         key:painKey,
         meta:{
-          title:`Zona dolore (${STATE.zoneLabel})`,
-          sub:"marker orientativo sulla mano",
-          chips:["dolore","dermatomeri mano"],
-          bodyHtml:`<p>Marker visivo sulla zona selezionata (mano/dita).</p>`
+          title:"Zona dolore (spalla)",
+          vertebra:"—",
+          chips:["dolore","spalla"],
+          profHtml:`<p>Marker orientativo per distretto spalla.</p>`,
+          patientHtml:`<p>Questo bollino indica dove senti dolore alla spalla.</p>`
+        }
+      });
+    }
+
+    else if(area==="lombare"){
+      dermView="back";
+      points.push("2) (Opzionale) S1 se dolore sacrale");
+      markers.push({
+        key:"spine_S1",
+        meta:{
+          title:"S1 (opzionale)",
+          vertebra:"S1",
+          chips:["S1","opzionale"],
+          profHtml:`<p>Se componente sacrale, aggiunta di riferimento S1 (demo).</p>`,
+          patientHtml:`<p>Se il dolore è molto in basso, vicino al sacro, può essere utile aggiungere questo punto.</p>`
+        }
+      });
+      markers.push({
+        key:"derm_S1",
+        meta:{
+          title:"S1 (mappa)",
+          vertebra:"S1",
+          chips:["mappa"],
+          profHtml:`<p>Guida regionale su mappa.</p>`,
+          patientHtml:`<p>Solo orientamento sulla mappa.</p>`
         }
       });
     }
 
     else if(area==="cervicale"){
       dermView="back";
-      points.push("Nota: la tua immagine colonna è lombosacrale (non cervicale).");
+      points.push("Nota: immagine colonna caricata è lombosacrale (non cervicale).");
     }
 
     return { dermView, markers, points };
@@ -604,7 +695,9 @@
       `Punti (ordine):`,
       ...(points.length?points:["—"]),
       ``,
-      dosingText()
+      dosingText(),
+      ``,
+      "Nota: tocca i bollini blu sulle immagini per aprire spiegazione professionale + spiegazione paziente + vertebra/punto."
     ];
     return lines.join("\n");
   }
@@ -655,7 +748,7 @@
     plan.markers.forEach(m=>addMarker(m.key, m.meta));
 
     $("summary").textContent = buildSummary(plan.points);
-    $("doseInline").innerHTML = dosingHtml(); // ✅ posologia visibile in Step 4
+    $("doseInline").innerHTML = dosingHtml();
     setSafety();
 
     showStep(4);
@@ -690,6 +783,7 @@
 </script>
 </body>
 </html>
+
 
 
 
