@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Demo domande dolore + mappe dermatomeri</title>
+  <style>
+    body{font-family:system-ui;margin:0;background:#f6f7fb;color:#111}
+    .wrap{max-width:980px;margin:0 auto;padding:18px}
+    .card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 6px 18px rgba(0,0,0,.06)}
+    .step{display:none}
+    .step.active{display:block}
+    .pill{display:inline-block;background:#eef1ff;color:#1f5eff;padding:4px 10px;border-radius:999px;font-size:12px;margin-bottom:10px}
+    .row{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:900px){.row.two{grid-template-columns:1.05fr .95fr}}
+    label{font-size:13px;color:#333;display:block;margin-bottom:6px}
+    select,input,textarea{width:100%;padding:10px 12px;border:1px solid #d9dce6;border-radius:10px;font-size:16px;background:#fff}
+    textarea{min-height:90px;resize:vertical}
+    .btnbar{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+    button{appearance:none;border:0;border-radius:12px;padding:10px 14px;font-size:16px;cursor:pointer}
+    button.primary{background:#1f5eff;color:#fff}
+    button.secondary{background:#eef1ff;color:#1f5eff}
+    button.ghost{background:transparent;color:#1f5eff;border:1px solid #cfd6ff}
+    .progress{height:10px;background:#e9ecf7;border-radius:999px;overflow:hidden;margin:12px 0 16px}
+    .bar{height:100%;width:0%;background:#1f5eff;transition:width .25s ease}
+
+    .zones{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+    @media(min-width:900px){.zones{grid-template-columns:1fr 1fr}}
+    .zoneBtn{width:100%;text-align:left;border:1px solid #d9dce6;background:#fff;border-radius:14px;padding:12px}
+    .zoneBtn b{display:block;margin-bottom:6px}
+    .zoneBtn small{color:#555}
+    .zoneBtn.selected{border-color:#1f5eff;box-shadow:0 0 0 3px rgba(31,94,255,.15)}
+
+    .result{background:#f7f9ff;border:1px solid #dfe6ff;padding:12px;border-radius:12px;white-space:pre-wrap}
+    .warn{background:#fff5f5;border:1px solid #ffd6d6;color:#7a1b1b;padding:12px;border-radius:12px;margin-top:12px}
+    .small{font-size:12px;color:#555}
+
+    .mapBox{border:1px solid #e6e8f2;border-radius:14px;padding:12px;background:#fff}
+    .mapTitle{font-weight:700;margin:0 0 8px}
+    .mapHint{margin:0 0 10px;color:#555;font-size:12px}
+    .mapGrid{display:grid;grid-template-columns:1fr;gap:10px}
+    @media(min-width:900px){.mapGrid{grid-template-columns:1fr 1fr}}
+    .mapPane{border:1px solid #eef1ff;border-radius:14px;padding:10px;background:#fbfcff}
+    .mapPane b{display:block;margin-bottom:6px}
+    .mapPane img{width:100%;height:auto;border-radius:12px;display:none;border:1px solid rgba(0,0,0,.06)}
+    .activeImg{display:block !important;}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h2 style="margin:0 0 6px;">Demo — domande dolore + mappe dermatomeri</h2>
+    <div class="small">Questa pagina gira fuori da Webador (JS abilitato) e poi si inserisce in Webador con iframe.</div>
+
+    <div class="progress"><div class="bar" id="bar"></div></div>
+
+    <!-- STEP 1 -->
+    <section class="step active" id="step1">
+      <div class="pill">Passo 1/4</div>
+      <p><b>Dove senti dolore?</b></p>
+      <div class="row two">
+        <div>
+          <label>Area</label>
+          <select id="area">
+            <option value="">Seleziona…</option>
+            <option value="ginocchio">Ginocchio</option>
+            <option value="mano">Mano / dita</option>
+            <option value="avambraccio">Avambraccio</option>
+            <option value="spalla">Spalla</option>
+            <option value="schiena">Schiena</option>
+          </select>
+        </div>
+        <div>
+          <label>Lato</label>
+          <select id="side">
+            <option value="">Seleziona…</option>
+            <option value="sinistro">Sinistro</option>
+            <option value="destro">Destro</option>
+            <option value="bilaterale">Bilaterale</option>
+            <option value="centrale">Centrale</option>
+          </select>
+        </div>
+      </div>
+      <div class="btnbar">
+        <button type="button" class="primary" onclick="next1()">Avanti</button>
+      </div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="step" id="step2">
+      <div class="pill">Passo 2/4</div>
+      <p><b>Seleziona la zona più precisa</b></p>
+      <div class="small">Le opzioni cambiano in base all’area.</div>
+      <div class="zones" id="zones"></div>
+      <div class="btnbar">
+        <button type="button" class="secondary" onclick="showStep(1)">Indietro</button>
+        <button type="button" class="primary" onclick="next2()">Avanti</button>
+      </div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="step" id="step3">
+      <div class="pill">Passo 3/4</div>
+      <p><b>Dettagli</b></p>
+      <div class="row two">
+        <div>
+          <label>Intensità (0–10)</label>
+          <input id="intensity" type="number" min="0" max="10" step="1" placeholder="Es. 6" />
+        </div>
+        <div>
+          <label>Da quanto tempo?</label>
+          <select id="duration">
+            <option value="">Seleziona…</option>
+            <option value="<24h">Meno di 24 ore</option>
+            <option value="1-3g">1–3 giorni</option>
+            <option value="4-14g">4–14 giorni</option>
+            <option value=">2s">Oltre 2 settimane</option>
+            <option value=">3m">Oltre 3 mesi</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Associato a… (facoltativo)</label>
+          <select id="assoc">
+            <option value="">Nessuno / non so</option>
+            <option value="gonfiore">Gonfiore</option>
+            <option value="instabilita">Instabilità</option>
+            <option value="formicolio">Formicolio</option>
+            <option value="debolezza">Debolezza</option>
+          </select>
+        </div>
+        <div>
+          <label>Note (facoltativo)</label>
+          <textarea id="notes" placeholder="Cosa lo peggiora o migliora?"></textarea>
+        </div>
+      </div>
+
+      <div class="btnbar">
+        <button type="button" class="secondary" onclick="showStep(2)">Indietro</button>
+        <button type="button" class="primary" onclick="next3()">Vedi risultato</button>
+      </div>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="step" id="step4">
+      <div class="pill">Passo 4/4</div>
+      <p><b>Riepilogo + mappe</b></p>
+
+      <div class="row two">
+        <div>
+          <div class="result" id="summary"></div>
+          <div class="warn" id="safety" style="display:none;"></div>
+
+          <div class="btnbar">
+            <button type="button" class="ghost" onclick="restart()">Ricomincia</button>
+            <button type="button" class="primary" onclick="copyText()">Copia testo</button>
+          </div>
+        </div>
+
+        <div class="mapBox">
+          <p class="mapTitle">Mappa dermatomeri (auto)</p>
+          <p class="mapHint">Dolore = vista più utile; Punto consigliato = vista più utile.</p>
+
+          <div class="mapGrid">
+            <div class="mapPane">
+              <b>Vista per la zona dolore</b>
+              <img id="pain_front"  alt="Dermatomeri anteriore">
+              <img id="pain_back"   alt="Dermatomeri posteriore">
+              <img id="pain_upper"  alt="Dermatomeri arto superiore">
+              <img id="pain_lower"  alt="Dermatomeri arto inferiore">
+            </div>
+
+            <div class="mapPane">
+              <b>Vista per il punto consigliato</b>
+              <img id="point_front" alt="Dermatomeri anteriore">
+              <img id="point_back"  alt="Dermatomeri posteriore">
+              <img id="point_upper" alt="Dermatomeri arto superiore">
+              <img id="point_lower" alt="Dermatomeri arto inferiore">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+/* Immagini dermatomeri (laGuardiaMedica) */
+var IMG = {
+  front: "https://www.laguardiamedica.it/2019/contenuti/neurologia/images/derm_01.jpg",
+  back:  "https://www.laguardiamedica.it/2019/contenuti/neurologia/images/derm_02.jpg",
+  upper: "https://www.laguardiamedica.it/2019/contenuti/neurologia/images/derm_03.jpg",
+  lower: "https://www.laguardiamedica.it/2019/contenuti/neurologia/images/derm_04.jpg"
+};
+
+var STATE = { step:1, area:"", side:"", zone:"", zoneLabel:"" };
+
+var ZONES = {
+  ginocchio: [
+    ["anteriore","Anteriore (rotula)","Dolore davanti al ginocchio"],
+    ["mediale","Interno (mediale)","Dolore lato interno"],
+    ["laterale","Esterno (laterale)","Dolore lato esterno"],
+    ["posteriore","Posteriore (cavo popliteo)","Dolore dietro al ginocchio"]
+  ],
+  mano: [
+    ["pollice","Pollice","Dolore pollice"],
+    ["indice","Indice","Dolore indice"],
+    ["medio","Medio","Dolore dito medio"],
+    ["anulare_mignolo","Anulare / mignolo","Dolore lato ulnare mano"]
+  ],
+  avambraccio: [
+    ["mediale","Mediale","Dolore lato interno avambraccio"],
+    ["laterale","Laterale","Dolore lato esterno avambraccio"],
+    ["dorsale","Dorsale","Dolore sul dorso"],
+    ["volare","Volare","Dolore lato palmare"]
+  ],
+  spalla: [
+    ["anteriore","Anteriore","Dolore davanti alla spalla"],
+    ["laterale","Laterale","Dolore sul deltoide"],
+    ["posteriore","Posteriore","Dolore zona scapola"]
+  ],
+  schiena: [
+    ["cervicale","Cervicale","Nuca / collo"],
+    ["toracica","Toracica","Dorso medio"],
+    ["lombare","Lombare","Schiena bassa"],
+    ["sacrale","Sacrale","Base colonna / sacro"]
+  ]
+};
+
+function showStep(n){
+  STATE.step = n;
+  document.getElementById("step1").classList.toggle("active", n===1);
+  document.getElementById("step2").classList.toggle("active", n===2);
+  document.getElementById("step3").classList.toggle("active", n===3);
+  document.getElementById("step4").classList.toggle("active", n===4);
+
+  var pct = ((n - 1) / 3) * 100;
+  document.getElementById("bar").style.width = pct + "%";
+}
+
+function renderZones(area){
+  var box = document.getElementById("zones");
+  box.innerHTML = "";
+  (ZONES[area] || []).forEach(function(z){
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "zoneBtn";
+    btn.onclick = function(){ selectZone(z[0], z[1]); };
+    btn.setAttribute("data-zone", z[0]);
+    btn.innerHTML = "<b>"+z[1]+"</b><small>"+z[2]+"</small>";
+    box.appendChild(btn);
+  });
+}
+
+function selectZone(val, label){
+  STATE.zone = val;
+  STATE.zoneLabel = label;
+  document.querySelectorAll("#zones .zoneBtn").forEach(function(b){
+    b.classList.toggle("selected", b.getAttribute("data-zone") === val);
+  });
+}
+
+function propose(area, zone){
+  if(area === "ginocchio"){
+    if(zone === "anteriore" || zone === "mediale"){
+      return { seg:"Indicativo: L3–L4", points:[{name:"Punto A (zona lombare bassa)",code:"P-A-L4L5"},{name:"Punto C (polpaccio)",code:"P-C-POLPACCIO"}] };
+    }
+    if(zone === "laterale"){
+      return { seg:"Indicativo: L5", points:[{name:"Punto A (zona lombare bassa)",code:"P-A-L4L5"},{name:"Punto C (polpaccio)",code:"P-C-POLPACCIO"}] };
+    }
+    if(zone === "posteriore"){
+      return { seg:"Indicativo: S1", points:[{name:"Punto B (zona sacrale)",code:"P-B-S1"},{name:"Punto C (polpaccio)",code:"P-C-POLPACCIO"}] };
+    }
+  }
+  if(area === "mano"){
+    if(zone === "pollice" || zone === "indice") return { seg:"Indicativo: C6", points:[{name:"Punto E (cervicale bassa)",code:"P-E-C6C7"},{name:"Punto F (avambraccio)",code:"P-F-AVAMBRACCIO"}] };
+    if(zone === "medio") return { seg:"Indicativo: C7", points:[{name:"Punto E (cervicale bassa)",code:"P-E-C6C7"},{name:"Punto F (avambraccio)",code:"P-F-AVAMBRACCIO"}] };
+    if(zone === "anulare_mignolo") return { seg:"Indicativo: C8–T1", points:[{name:"Punto E (cervicale bassa)",code:"P-E-C6C7"},{name:"Punto F (avambraccio)",code:"P-F-AVAMBRACCIO"}] };
+  }
+  if(area === "spalla"){
+    return { seg:"Indicativo: C4–C6", points:[{name:"Punto D (collo)",code:"P-D-C4C5"},{name:"Punto E (cervicale bassa)",code:"P-E-C6C7"}] };
+  }
+  if(area === "schiena"){
+    if(zone === "cervicale") return { seg:"Indicativo: C2–C7", points:[{name:"Punto D (collo)", code:"P-D-C4C5"}] };
+    if(zone === "toracica") return { seg:"Indicativo: T1–T12", points:[{name:"Punto (zona toracica)", code:"P-T-TORACICA"}] };
+    if(zone === "lombare") return { seg:"Indicativo: L1–L5", points:[{name:"Punto A (zona lombare bassa)", code:"P-A-L4L5"}] };
+    if(zone === "sacrale") return { seg:"Indicativo: S1–S3", points:[{name:"Punto B (zona sacrale)", code:"P-B-S1"}] };
+  }
+  return { seg:"—", points:[] };
+}
+
+function painView(area){
+  if(area === "mano" || area === "avambraccio" || area === "spalla") return "upper";
+  if(area === "ginocchio") return "lower";
+  if(area === "schiena") return "back";
+  return "front";
+}
+function pointView(code){
+  if(code.includes("L4L5") || code.includes("S1") || code.includes("TORACICA")) return "back";
+  if(code.includes("POLPACCIO")) return "lower";
+  if(code.includes("AVAMBRACCIO") || code.includes("C6C7") || code.includes("C4C5")) return "upper";
+  return "front";
+}
+
+function setMapSrcOnce(){
+  ["pain_front","pain_back","pain_upper","pain_lower","point_front","point_back","point_upper","point_lower"].forEach(function(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    if(id.endsWith("_front")) el.src = IMG.front;
+    if(id.endsWith("_back"))  el.src = IMG.back;
+    if(id.endsWith("_upper")) el.src = IMG.upper;
+    if(id.endsWith("_lower")) el.src = IMG.lower;
+  });
+}
+function showMap(group, view){
+  ["front","back","upper","lower"].forEach(function(v){
+    var el = document.getElementById(group+"_"+v);
+    if(el) el.classList.remove("activeImg");
+  });
+  var on = document.getElementById(group+"_"+view);
+  if(on) on.classList.add("activeImg");
+}
+
+function next1(){
+  var area = document.getElementById("area").value;
+  var side = document.getElementById("side").value;
+  if(!area || !side){ alert("Seleziona area e lato."); return; }
+  STATE.area = area; STATE.side = side; STATE.zone=""; STATE.zoneLabel="";
+  renderZones(area);
+  showStep(2);
+}
+function next2(){
+  if(!STATE.zone){ alert("Seleziona una zona."); return; }
+  showStep(3);
+}
+function next3(){
+  var intensity = document.getElementById("intensity").value;
+  var duration = document.getElementById("duration").value;
+  var assoc = document.getElementById("assoc").value;
+  var notes = document.getElementById("notes").value || "";
+  var n = Number(intensity);
+  if(intensity === "" || isNaN(n) || n < 0 || n > 10){ alert("Inserisci intensità 0–10."); return; }
+  if(!duration){ alert("Seleziona la durata."); return; }
+
+  var p = propose(STATE.area, STATE.zone);
+  var lines = [
+    "Area: " + STATE.area,
+    "Lato: " + STATE.side,
+    "Zona: " + (STATE.zoneLabel || "—"),
+    "Intensità: " + intensity,
+    "Durata: " + duration,
+    "Associato a: " + (assoc || "—"),
+    "Note: " + (notes.trim() ? notes.trim() : "—"),
+    "",
+    p.seg,
+    "Aree consigliate (demo):"
+  ];
+  (p.points.length ? p.points : [{name:"—",code:"—"}]).forEach(function(x){
+    lines.push("- " + x.name + " (" + x.code + ")");
+  });
+  document.getElementById("summary").textContent = lines.join("\n");
+
+  // Safety (minimo)
+  var safety = [];
+  if(!isNaN(n) && n >= 8) safety.push("Dolore molto intenso (8–10): valuta un consulto medico.");
+  if(assoc === "debolezza") safety.push("Debolezza: se improvvisa o in aumento, contatta un medico.");
+  var se = document.getElementById("safety");
+  if(safety.length){
+    se.style.display="block";
+    se.innerHTML="<b>Attenzione:</b><ul>"+safety.map(function(s){return "<li>"+s+"</li>";}).join("")+"</ul>";
+  } else {
+    se.style.display="none";
+    se.innerHTML="";
+  }
+
+  // Mappe
+  setMapSrcOnce();
+  var pv = painView(STATE.area);
+  showMap("pain", pv);
+  var primary = (p.points[0] && p.points[0].code) ? p.points[0].code : "";
+  var rv = primary ? pointView(primary) : pv;
+  showMap("point", rv);
+
+  showStep(4);
+}
+
+function restart(){
+  STATE = { step:1, area:"", side:"", zone:"", zoneLabel:"" };
+  document.getElementById("area").value="";
+  document.getElementById("side").value="";
+  document.getElementById("zones").innerHTML="";
+  document.getElementById("intensity").value="";
+  document.getElementById("duration").value="";
+  document.getElementById("assoc").value="";
+  document.getElementById("notes").value="";
+  document.getElementById("summary").textContent="";
+  document.getElementById("safety").style.display="none";
+  document.getElementById("safety").innerHTML="";
+  showStep(1);
+}
+function copyText(){
+  var t = document.getElementById("summary").textContent || "";
+  if(!t){ alert("Nulla da copiare."); return; }
+  navigator.clipboard?.writeText(t).then(function(){ alert("Testo copiato."); })
+    .catch(function(){ alert("Copia non disponibile. Seleziona e copia manualmente."); });
+}
+
+showStep(1);
+</script>
+</body>
+</html>
