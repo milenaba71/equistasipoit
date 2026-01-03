@@ -88,13 +88,11 @@
     .chip{background:var(--soft);color:var(--blue);padding:4px 10px;border-radius:999px;font-size:12px}
     .modalBody{font-size:14px;line-height:1.45;color:#222}
 
-    /* Timing page styles */
-    .timingCard{background:#fff;border:1px solid #e6e8f2;border-radius:16px;padding:14px}
-    .timingCard h3{margin:0 0 8px}
-    .timingList{margin:10px 0 0;padding-left:18px}
-    .timingList li{margin:8px 0}
-    .noteBox{background:#f7f9ff;border:1px solid #dfe6ff;border-radius:14px;padding:12px;margin-top:12px}
-    .dangerBox{background:#fff5f5;border:1px solid #ffd6d6;border-radius:14px;padding:12px;margin-top:12px;color:#7a1b1b}
+    /* Posologia card */
+    .doseCard{background:#fff;border:1px solid #e6e8f2;border-radius:16px;padding:12px;margin-top:12px}
+    .doseCard ul{margin:8px 0 0;padding-left:18px}
+    .doseCard li{margin:6px 0}
+    .doseWarn{background:#fff5f5;border:1px solid #ffd6d6;color:#7a1b1b;border-radius:14px;padding:10px;margin-top:10px}
     code{background:#f1f3ff;padding:2px 6px;border-radius:8px}
   </style>
 </head>
@@ -200,6 +198,9 @@
           <div class="result" id="summary"></div>
           <div class="warn" id="safety" style="display:none;"></div>
 
+          <!-- POSOLOGIA SEMPRE VISIBILE ANCHE QUI -->
+          <div class="doseCard" id="doseInline"></div>
+
           <div class="btnbar">
             <button class="ghost" type="button" id="restart">Ricomincia</button>
             <button class="primary" type="button" id="copy">Copia testo</button>
@@ -215,7 +216,6 @@
         <div class="mapBox">
           <div class="mapGrid">
 
-            <!-- Dermatomeri dinamici -->
             <div class="pane">
               <b>Mappa dermatomeri (vista automatica)</b>
               <div class="imgWrap" id="wrapDerm">
@@ -223,7 +223,6 @@
               </div>
             </div>
 
-            <!-- Colonna -->
             <div class="pane">
               <b>Colonna vertebrale (L4–L5)</b>
               <div class="imgWrap" id="wrapSpine">
@@ -236,7 +235,6 @@
               </div>
             </div>
 
-            <!-- Arti inferiori -->
             <div class="pane">
               <b>Arti inferiori</b>
               <div class="imgWrap" id="wrapLower">
@@ -244,7 +242,6 @@
               </div>
             </div>
 
-            <!-- Arti superiori -->
             <div class="pane">
               <b>Arti superiori</b>
               <div class="imgWrap" id="wrapUpper">
@@ -257,35 +254,31 @@
       </div>
     </section>
 
-    <!-- STEP 5 (Pagina tempi di applicazione) -->
+    <!-- STEP 5 -->
     <section class="step" id="step5">
       <div class="pill">Tempi di applicazione</div>
 
-      <div class="timingCard">
-        <h3>Protocollo consigliato (base)</h3>
-
-        <ul class="timingList">
-          <li><b>Mattina:</b> <b>2 ore</b></li>
-          <li><b>Sera:</b> <b>2 ore</b></li>
-          <li><b>Se il dolore persiste:</b> puoi estendere <b>anche tutta la notte</b>.</li>
+      <div class="doseCard">
+        <b>Protocollo base</b>
+        <ul>
+          <li><b>Mattina:</b> 2 ore</li>
+          <li><b>Sera:</b> 2 ore</li>
+          <li><b>Se dolore persiste:</b> possibile estensione <b>anche tutta la notte</b></li>
         </ul>
 
-        <div class="noteBox">
-          <b>Schema settimanale:</b><br>
-          <b>5 giorni</b> con applicazione + <b>2 giorni</b> di riposo senza dispositivi.
+        <div class="doseCard" style="margin-top:10px;background:#f7f9ff;border-color:#dfe6ff">
+          <b>Schema settimanale</b>
+          <ul>
+            <li><b>5 giorni</b> con applicazione</li>
+            <li><b>2 giorni</b> di riposo senza dispositivi</li>
+          </ul>
         </div>
 
-        <div class="dangerBox">
-          <b>Se il paziente non tollera i dispositivi</b> (es. <b>mal di testa</b>, <b>stanchezza</b>, <b>nausea</b> o <b>dolore peggiore</b>):<br>
-          <ol class="timingList">
-            <li><b>Rimuovere subito</b> i dispositivi.</li>
-            <li>Attendere che i sintomi rientrino.</li>
-            <li><b>Riprovare</b> il giorno successivo con <b>meno ore</b> (es. 30–60 min) e aumentare gradualmente se ben tollerato.</li>
-          </ol>
-        </div>
-
-        <div class="small" style="margin-top:12px;">
-          Suggerimento pratico: se serve “scalare”, riparti da <b>1 ora mattina + 1 ora sera</b>, poi torna a 2+2 se tollerato.
+        <div class="doseWarn">
+          <b>Se non tollerato</b> (mal di testa, stanchezza, nausea o dolore peggiore):<br>
+          1) <b>Rimuovere</b> i dispositivi<br>
+          2) Attendere che i sintomi rientrino<br>
+          3) Riprovare con <b>meno ore</b> (es. 30–60 min) e aumentare gradualmente se tollerato
         </div>
 
         <div class="btnbar">
@@ -319,6 +312,42 @@
     spine: "./colonna%20L4%20L5.png"
   };
 
+  // POSOLOGIA (usata sia in pagina dedicata sia in testo copiabile)
+  const DOSING = {
+    morningHours: 2,
+    eveningHours: 2,
+    allowNightIfPersist: true,
+    cycleOnDays: 5,
+    cycleOffDays: 2,
+    intolerance: ["mal di testa","stanchezza","nausea","dolore peggiore"]
+  };
+
+  function dosingHtml(){
+    return `
+      <b>Posologia (tempi di applicazione)</b>
+      <ul>
+        <li><b>Mattina:</b> ${DOSING.morningHours} ore</li>
+        <li><b>Sera:</b> ${DOSING.eveningHours} ore</li>
+        <li><b>Se dolore persiste:</b> anche tutta la notte</li>
+        <li><b>Ciclo:</b> ${DOSING.cycleOnDays} giorni ON + ${DOSING.cycleOffDays} giorni OFF</li>
+      </ul>
+      <div class="doseWarn">
+        <b>Se non tollerato</b> (${DOSING.intolerance.join(", ")}): rimuovere e riprovare con meno ore.
+      </div>
+    `;
+  }
+
+  function dosingText(){
+    return [
+      "Posologia:",
+      `- Mattina: ${DOSING.morningHours} ore`,
+      `- Sera: ${DOSING.eveningHours} ore`,
+      `- Se dolore persiste: anche tutta la notte`,
+      `- Ciclo: ${DOSING.cycleOnDays} giorni ON + ${DOSING.cycleOffDays} giorni OFF`,
+      `- Se non tollerato (mal di testa / stanchezza / nausea / dolore peggiore): rimuovere e riprovare con meno ore`
+    ].join("\n");
+  }
+
   const ZONES = {
     ginocchio: [
       ["mediale","Ginocchio interno (mediale)","dolore lato interno"],
@@ -347,32 +376,42 @@
       ["posteriore","Spalla posteriore","dietro spalla"]
     ],
     mano: [
-      ["pollice","Pollice","lato radiale"],
+      ["pollice","Pollice","territorio C6 (radiale)"],
       ["indice","Indice","C6"],
       ["medio","Medio","C7"],
       ["ulnare","Anulare/Mignolo","C8–T1"]
     ]
   };
 
+  // ✅ FIX: marker mano spostati più in basso (visibili sulla mano)
   const DEFAULT_POS = {
+    // colonna + derm lombare
     spine_L4L5:{wrap:"spine", left:26, top:78},
     spine_S1:{wrap:"spine", left:24, top:90},
     derm_L4L5:{wrap:"derm", left:50, top:62},
     derm_S1:{wrap:"derm", left:50, top:80},
+
+    // ginocchio
     knee_med:{wrap:"lower", left:44, top:44},
     knee_lat:{wrap:"lower", left:56, top:44},
     knee_ant:{wrap:"lower", left:50, top:40},
     knee_post:{wrap:"lower", left:50, top:48},
+
+    // anca
     hip_inguine:{wrap:"lower", left:50, top:28},
     hip_lat:{wrap:"lower", left:58, top:30},
     hip_gluteo:{wrap:"lower", left:50, top:32},
+
+    // spalla
     shoulder_ant:{wrap:"upper", left:22, top:16},
     shoulder_lat:{wrap:"upper", left:20, top:18},
     shoulder_post:{wrap:"upper", left:18, top:16},
-    hand_thumb:{wrap:"upper", left:76, top:78},
-    hand_index:{wrap:"upper", left:74, top:74},
-    hand_middle:{wrap:"upper", left:72, top:70},
-    hand_ulnar:{wrap:"upper", left:66, top:72}
+
+    // ✅ MANO/DITA (NUOVE COORDINATE PIÙ “BASSE”)
+    hand_thumb:{wrap:"upper", left:74, top:90},
+    hand_index:{wrap:"upper", left:72, top:86},
+    hand_middle:{wrap:"upper", left:70, top:82},
+    hand_ulnar:{wrap:"upper", left:66, top:86}
   };
 
   const STATE = { step:1, area:"", side:"", zone:"", zoneLabel:"", intensity:"", duration:"", notes:"" };
@@ -380,7 +419,6 @@
 
   function showStep(n){
     STATE.step=n;
-    // abbiamo 5 step: progress su primi 4, poi step 5 non cambia la barra
     ["step1","step2","step3","step4","step5"].forEach((s,i)=>$(s).classList.toggle("active", i===n-1));
     const barSteps = 4;
     const idx = Math.min(n, barSteps);
@@ -395,7 +433,6 @@
     $("modalBack").style.display="flex";
   }
   function closeModal(){ $("modalBack").style.display="none"; }
-
   $("modalClose").addEventListener("click", closeModal);
   $("modalBack").addEventListener("click", (e)=>{ if(e.target===$("modalBack")) closeModal(); });
 
@@ -440,10 +477,7 @@
     m.className = "marker show";
     m.style.left = def.left + "%";
     m.style.top  = def.top + "%";
-    m.innerHTML = `
-      <div class="dot"></div>
-      <div class="label">${meta.title}<small>${meta.sub||""}</small></div>
-    `;
+    m.innerHTML = `<div class="dot"></div><div class="label">${meta.title}<small>${meta.sub||""}</small></div>`;
     m.addEventListener("click",(ev)=>{
       ev.stopPropagation();
       openModal(meta);
@@ -461,6 +495,31 @@
     $("imgSpine").src = IMG.spine;
   }
 
+  function addBaseL4L5(points, markers){
+    points.push("1) Prima applicazione: L4–L5 (obbligatoria)");
+    markers.push({
+      key:"spine_L4L5",
+      meta:{
+        title:"L4–L5 (prima applicazione)",
+        sub:"punto preciso su colonna",
+        chips:["L4–L5","riferimento palpatorio"],
+        bodyHtml:`
+          <p><b>Punto:</b> spazio interspinoso L4–L5.</p>
+          <p><b>Come trovarlo:</b> linea tra le creste iliache ≈ L4. Lo spazio <b>L4–L5</b> è subito sotto.</p>
+        `
+      }
+    });
+    markers.push({
+      key:"derm_L4L5",
+      meta:{
+        title:"L4–L5 (guida dermatomeri)",
+        sub:"orientamento regionale",
+        chips:["L4–L5","mappa"],
+        bodyHtml:`<p>Marker regionale su mappa (orientativo).</p>`
+      }
+    });
+  }
+
   function buildPlan(){
     const area = STATE.area;
     const zone = STATE.zone;
@@ -468,84 +527,39 @@
     const markers=[];
     const points=[];
 
+    // ✅ Base: L4–L5 sempre
+    addBaseL4L5(points, markers);
+
     if(area==="ginocchio"){
       dermView="back";
       const painKey = zone==="mediale" ? "knee_med" : zone==="laterale" ? "knee_lat" : zone==="anteriore" ? "knee_ant" : "knee_post";
 
-      points.push("1) Prima applicazione: L4–L5 (obbligatoria)");
-      markers.push({
-        key:"spine_L4L5",
-        meta:{
-          title:"L4–L5 (prima applicazione)",
-          sub:"punto preciso su colonna",
-          chips:["L4–L5","riferimento palpatorio"],
-          bodyHtml:`
-            <p><b>Punto:</b> spazio interspinoso L4–L5.</p>
-            <p><b>Come trovarlo:</b> linea tra le creste iliache ≈ L4. Lo spazio <b>L4–L5</b> è subito sotto.</p>
-            <p><b>Razionale neuromuscolare:</b> modulazione segmentaria lombare bassa per guidare i pattern di carico dell’arto inferiore e ridurre compensi sul ginocchio.</p>
-          `
-        }
-      });
-      markers.push({
-        key:"derm_L4L5",
-        meta:{
-          title:"L4–L5 (guida dermatomeri)",
-          sub:"orientamento regionale",
-          chips:["L4–L5","mappa"],
-          bodyHtml:`<p>Marker “regionale” su mappa dermatomeri. Per precisione usa il marker su colonna.</p>`
-        }
-      });
-
       points.push("2) Seconda applicazione: S1 (sacro)");
       markers.push({
         key:"spine_S1",
-        meta:{
-          title:"S1 (seconda applicazione)",
-          sub:"riferimento sacrale",
-          chips:["S1","sacro"],
-          bodyHtml:`<p><b>Obiettivo:</b> supporto del controllo lombo-pelvico e della catena posteriore in carico.</p>`
-        }
+        meta:{ title:"S1 (seconda applicazione)", sub:"riferimento sacrale", chips:["S1","sacro"], bodyHtml:`<p>Riferimento sacrale (demo).</p>` }
       });
       markers.push({
         key:"derm_S1",
-        meta:{
-          title:"S1 (guida dermatomeri)",
-          sub:"orientamento regionale",
-          chips:["S1","mappa"],
-          bodyHtml:`<p>Guida regionale su mappa.</p>`
-        }
+        meta:{ title:"S1 (guida dermatomeri)", sub:"orientamento regionale", chips:["S1","mappa"], bodyHtml:`<p>Guida regionale su mappa.</p>` }
       });
 
       points.push("Zona dolore: ginocchio (marker orientativo)");
-      markers.push({
-        key:painKey,
-        meta:{
-          title:"Zona dolore (ginocchio)",
-          sub:"marker orientativo",
-          chips:["dolore","arto inferiore"],
-          bodyHtml:`<p>Marker orientativo sulla zona selezionata.</p>`
-        }
-      });
+      markers.push({ key:painKey, meta:{ title:"Zona dolore (ginocchio)", sub:"orientativo", chips:["dolore"], bodyHtml:`<p>Marker orientativo sulla zona selezionata.</p>` }});
     }
 
     else if(area==="anca"){
       dermView="back";
       const painKey = zone==="inguine" ? "hip_inguine" : zone==="laterale" ? "hip_lat" : "hip_gluteo";
-      points.push("1) Prima applicazione: L4–L5");
-      markers.push({ key:"spine_L4L5", meta:{ title:"L4–L5", sub:"riferimento colonna", chips:["L4–L5"], bodyHtml:`<p>Riferimento segmentario lombare basso (demo).</p>` }});
-      markers.push({ key:"derm_L4L5", meta:{ title:"L4–L5 (mappa)", sub:"guida regionale", chips:["L4–L5"], bodyHtml:`<p>Guida regionale su mappa.</p>` }});
       points.push("Zona dolore: anca (marker orientativo)");
       markers.push({ key:painKey, meta:{ title:"Zona dolore (anca)", sub:"orientativo", chips:["dolore"], bodyHtml:`<p>Marker orientativo sulla zona selezionata.</p>` }});
     }
 
     else if(area==="lombare"){
       dermView="back";
-      points.push("1) Prima applicazione: L4–L5");
-      markers.push({ key:"spine_L4L5", meta:{ title:"L4–L5", sub:"punto colonna", chips:["L4–L5"], bodyHtml:`<p>Riferimento palpatorio: creste iliache ≈ L4; subito sotto = L4–L5.</p>` }});
-      markers.push({ key:"derm_L4L5", meta:{ title:"L4–L5 (mappa)", sub:"guida regionale", chips:["L4–L5"], bodyHtml:`<p>Guida regionale su mappa.</p>` }});
-      points.push("2) Seconda applicazione: S1 (se componente sacrale)");
-      markers.push({ key:"spine_S1", meta:{ title:"S1", sub:"sacro", chips:["S1"], bodyHtml:`<p>Se coinvolgimento sacrale, riferimento S1 (demo).</p>` }});
-      markers.push({ key:"derm_S1", meta:{ title:"S1 (mappa)", sub:"guida regionale", chips:["S1"], bodyHtml:`<p>Guida regionale su mappa.</p>` }});
+      points.push("2) (Opzionale) Seconda applicazione: S1 se componente sacrale");
+      markers.push({ key:"spine_S1", meta:{ title:"S1 (opzionale)", sub:"se dolore sacrale", chips:["S1"], bodyHtml:`<p>Usalo se la componente è sacrale.</p>` }});
+      markers.push({ key:"derm_S1", meta:{ title:"S1 (mappa)", sub:"orientativo", chips:["S1","mappa"], bodyHtml:`<p>Guida regionale su mappa.</p>` }});
     }
 
     else if(area==="spalla"){
@@ -559,7 +573,15 @@
       dermView="upper";
       const painKey = zone==="pollice" ? "hand_thumb" : zone==="indice" ? "hand_index" : zone==="medio" ? "hand_middle" : "hand_ulnar";
       points.push("Zona dolore: mano/dita (marker orientativo)");
-      markers.push({ key:painKey, meta:{ title:"Zona dolore (mano)", sub:"orientativo", chips:["dolore","dita"], bodyHtml:`<p>Marker orientativo sulla zona selezionata.</p>` }});
+      markers.push({
+        key:painKey,
+        meta:{
+          title:`Zona dolore (${STATE.zoneLabel})`,
+          sub:"marker orientativo sulla mano",
+          chips:["dolore","dermatomeri mano"],
+          bodyHtml:`<p>Marker visivo sulla zona selezionata (mano/dita).</p>`
+        }
+      });
     }
 
     else if(area==="cervicale"){
@@ -582,8 +604,7 @@
       `Punti (ordine):`,
       ...(points.length?points:["—"]),
       ``,
-      `Tocca i marker per i dettagli.`,
-      `Per i tempi: premi “Tempi di applicazione”.`
+      dosingText()
     ];
     return lines.join("\n");
   }
@@ -634,6 +655,7 @@
     plan.markers.forEach(m=>addMarker(m.key, m.meta));
 
     $("summary").textContent = buildSummary(plan.points);
+    $("doseInline").innerHTML = dosingHtml(); // ✅ posologia visibile in Step 4
     setSafety();
 
     showStep(4);
@@ -645,6 +667,7 @@
     $("zones").innerHTML="";
     $("intensity").value=""; $("duration").value=""; $("notes").value="";
     $("summary").textContent="";
+    $("doseInline").innerHTML="";
     $("safety").style.display="none"; $("safety").innerHTML="";
     clearMarkers();
     showStep(1);
@@ -657,7 +680,7 @@
     catch(e){ alert("Copia non disponibile: seleziona e copia manualmente."); }
   });
 
-  // NEW: timing page
+  // Timing page
   $("btnTiming").addEventListener("click", ()=>showStep(5));
   $("backTiming").addEventListener("click", ()=>showStep(4));
   $("backToGuide").addEventListener("click", ()=>showStep(4));
@@ -667,6 +690,7 @@
 </script>
 </body>
 </html>
+
 
 
 
