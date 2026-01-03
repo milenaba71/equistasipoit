@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Dolore + Dermatomeri (marker su colonna + dolore + muscolo)</title>
+  <title>Dolore + Dermatomeri (marker colonna + dolore + muscolo)</title>
   <style>
     :root{--blue:#1f5eff;--bg:#f6f7fb;--card:#fff;--line:#d9dce6;--soft:#eef1ff;--text:#111;--muted:#555;}
     body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
-    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+    .wrap{max-width:1220px;margin:0 auto;padding:18px}
     .card{background:var(--card);border-radius:16px;padding:18px;box-shadow:0 6px 18px rgba(0,0,0,.06)}
     h2{margin:0 0 6px}
     .small{font-size:12px;color:var(--muted);line-height:1.35}
@@ -16,6 +16,10 @@
     .bar{height:100%;width:0%;background:var(--blue);transition:width .25s ease}
     .step{display:none}
     .step.active{display:block}
+
+    .topbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap}
+    .topbar .left{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .tag{background:#f1f4ff;border:1px solid #dfe6ff;color:#2a49c8;padding:6px 10px;border-radius:999px;font-size:12px}
 
     .row{display:grid;grid-template-columns:1fr;gap:12px}
     @media(min-width:980px){.row.two{grid-template-columns:1.05fr .95fr}}
@@ -50,7 +54,7 @@
     .imgWrap img{width:100%;height:auto;display:block}
     .fallback{display:none;padding:10px;font-size:12px;color:#7a1b1b;background:#fff5f5;border-top:1px solid #ffd6d6}
 
-    /* ✅ MARKER: bollino blu piccolo e cliccabile */
+    /* MARKER: bollino blu piccolo e cliccabile */
     .marker{
       position:absolute; transform:translate(-50%,-50%);
       display:none; z-index:50; pointer-events:auto;
@@ -67,7 +71,7 @@
 
     /* Modal */
     .modalBack{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:18px;z-index:99}
-    .modal{max-width:900px;width:100%;background:#fff;border-radius:16px;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+    .modal{max-width:960px;width:100%;background:#fff;border-radius:16px;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
     .modalHeader{display:flex;align-items:center;justify-content:space-between;gap:10px}
     .closeBtn{background:transparent;border:1px solid #ddd;border-radius:10px;padding:6px 10px;font-size:14px;cursor:pointer}
     .chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
@@ -81,15 +85,31 @@
     code{background:#f1f3ff;padding:2px 6px;border-radius:8px}
 
     .hint{margin-top:10px;font-size:12px;color:#444}
+    .protoCard{border:1px solid #e6e8f2;border-radius:16px;background:#fff;padding:14px}
+    .protoCard h3{margin:0 0 8px}
+    .protoList{margin:8px 0 0 18px}
+    .protoList li{margin:6px 0}
+    .divider{height:1px;background:#e9ecf7;margin:12px 0}
   </style>
 </head>
 
 <body>
 <div class="wrap">
   <div class="card">
-    <h2>Demo — 3 marker (colonna dermatomero + dolore + muscolo)</h2>
+
+    <div class="topbar">
+      <div class="left">
+        <div class="tag">3 marker: colonna (dermatomo) + dolore + muscolo</div>
+        <div class="tag">Bollino blu: tocchi → popup</div>
+      </div>
+      <div class="right">
+        <button class="secondary" type="button" id="btnProtocollo">Protocollo (posologia)</button>
+      </div>
+    </div>
+
+    <h2>Demo — Domande dolore + dermatomeri (tutti i distretti principali)</h2>
     <div class="small">
-      Regola: il <b>marker 1</b> sulla colonna segue il <b>dermatomero</b> (colori/numero). Marker 2 = dolore. Marker 3 = muscolo.
+      Nota: è una guida informativa. Non è una diagnosi. In caso di sintomi importanti o improvvisi, valutare un medico.
     </div>
 
     <div class="progress"><div class="bar" id="bar"></div></div>
@@ -101,11 +121,17 @@
 
       <div class="row two">
         <div>
-          <label>Area</label>
+          <label>Distretto</label>
           <select id="area">
             <option value="">Seleziona…</option>
-            <option value="mano">Mano / dita</option>
+            <option value="testa_collo">Testa / collo</option>
+            <option value="spalla_braccio">Spalla / braccio</option>
+            <option value="gomito_polso_mano">Gomito / polso / mano</option>
+            <option value="torace_addome">Torace / addome</option>
+            <option value="lombare_bacino">Lombare / bacino</option>
+            <option value="anca_coscia">Anca / coscia</option>
             <option value="ginocchio">Ginocchio</option>
+            <option value="gamba_caviglia_piede">Gamba / caviglia / piede</option>
           </select>
         </div>
         <div>
@@ -127,7 +153,7 @@
     <!-- STEP 2 -->
     <section class="step" id="step2">
       <div class="pill">Passo 2/4</div>
-      <p><b>Seleziona la zona</b></p>
+      <p><b>Seleziona la zona specifica</b></p>
       <div class="zones" id="zones"></div>
 
       <div class="btnbar">
@@ -175,7 +201,7 @@
     <!-- STEP 4 -->
     <section class="step" id="step4">
       <div class="pill">Passo 4/4</div>
-      <p><b>Marker (3 punti)</b></p>
+      <p><b>Marker (3 punti) + istruzioni</b></p>
 
       <div class="row two">
         <div>
@@ -185,10 +211,11 @@
           <div class="btnbar">
             <button class="ghost" type="button" id="restart">Ricomincia</button>
             <button class="primary" type="button" id="copy">Copia testo</button>
+            <button class="secondary" type="button" id="btnProtocollo2">Protocollo (posologia)</button>
           </div>
 
           <div class="hint">
-            Se un marker non cade perfetto, devi solo regolare le coordinate <code>left/top</code> in <code>SPINE_LEVEL</code> o in <code>PATHWAYS</code>.
+            Se un marker non cade perfetto, regola le coordinate <code>left/top</code> (percentuali) in <code>SPINE_LEVEL</code> o in <code>PATHWAYS</code>.
           </div>
         </div>
 
@@ -222,6 +249,54 @@
       </div>
     </section>
 
+    <!-- STEP 5: PROTOCOLLO -->
+    <section class="step" id="step5">
+      <div class="pill">Protocollo</div>
+
+      <div class="protoCard">
+        <h3>Posologia / utilizzo (per paziente)</h3>
+        <div class="small">Schema semplice, replicabile a domicilio. Se sintomi intensi o insoliti, sospendere e valutare un professionista sanitario.</div>
+
+        <div class="divider"></div>
+
+        <b>Tempi di applicazione standard</b>
+        <ul class="protoList">
+          <li><b>2 ore al mattino</b> + <b>2 ore alla sera</b></li>
+          <li>Se il dolore <b>persiste</b> e il paziente <b>tollera bene</b>, si può proseguire anche <b>durante la notte</b></li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <b>Se non tollera i dispositivi</b> (mal di testa, stanchezza, nausea, peggioramento del dolore)
+        <ul class="protoList">
+          <li><b>Rimuovere i dispositivi</b></li>
+          <li>Riprovare dopo con <b>meno ore</b> (es. 60–90 minuti), poi aumentare gradualmente se ben tollerato</li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <b>Cicli</b>
+        <ul class="protoList">
+          <li><b>5 giorni</b> di applicazione</li>
+          <li><b>2 giorni</b> di riposo senza dispositivi</li>
+          <li>Ripetere il ciclo se necessario, monitorando la risposta</li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <b>Come individuare il punto “colonna” (spiegazione paziente)</b>
+        <ul class="protoList">
+          <li>Usa la mappa: il colore della zona dolorosa indica un livello (C/T/L/S).</li>
+          <li><i>Palpa con le dita lungo la colonna</i> nel livello indicato: il punto dove senti maggiore fastidio/sensibilità è spesso il punto guida.</li>
+          <li>È normale dover “aggiustare” di pochi millimetri: conta la coerenza con la mappa e la risposta clinica.</li>
+        </ul>
+
+        <div class="btnbar">
+          <button class="secondary" type="button" id="backProto">Torna alla guida</button>
+        </div>
+      </div>
+    </section>
+
   </div>
 </div>
 
@@ -251,33 +326,69 @@
 </div>
 
 <script>
-  /* ========== IMMAGINI (nel tuo repo) ========== */
+  /* ================= IMMAGINI (repo) ================= */
   const IMG = {
     spineSegments: "./colonna_segmenti.png",
     bodyMap: "./dermatomeri-sensitivi.png"
   };
 
-  /* ========== ZONE UI ========== */
+  /* ================= ZONE UI (distretti) ================= */
   const ZONES = {
-    mano: [
-      ["pollice","Pollice","zona radiale mano"],
-      ["indice","Indice","zona radiale mano"],
-      ["medio","Dito medio","zona centrale mano"],
-      ["anulare","Anulare","zona ulnare/centrale (variabile)"],
-      ["mignolo","Mignolo","zona ulnare mano"]
+    testa_collo: [
+      ["collo_laterale","Collo laterale","C3–C4 (frequente)"],
+      ["collo_posteriore","Collo posteriore","C2–C3 (frequente)"],
+      ["trapezio_superiore","Trapezio superiore","C3–C4 / C5 (variabile)"]
+    ],
+    spalla_braccio: [
+      ["spalla","Spalla (deltoidea)","C5 (frequente)"],
+      ["braccio_laterale","Braccio laterale","C5–C6 (variabile)"],
+      ["braccio_mediale","Braccio mediale","T1 (variabile)"]
+    ],
+    gomito_polso_mano: [
+      ["gomito_laterale","Gomito laterale","C6 (frequente)"],
+      ["gomito_mediale","Gomito mediale","C8–T1 (variabile)"],
+      ["polso","Polso","C6–C7 (variabile)"],
+      ["pollice","Pollice","C6"],
+      ["indice","Indice","C6"],
+      ["medio","Dito medio","C7"],
+      ["anulare","Anulare","C8 (spesso)"],
+      ["mignolo","Mignolo","C8"]
+    ],
+    torace_addome: [
+      ["torace_alto","Torace alto (sternale)","T2–T4 (variabile)"],
+      ["torace_basso","Torace basso","T6–T9 (variabile)"],
+      ["addome","Addome","T10–T12 (variabile)"]
+    ],
+    lombare_bacino: [
+      ["lombare_centrale","Lombare centrale","L3–L5 (variabile)"],
+      ["lombare_laterale","Lombare laterale","L2–L4 (variabile)"],
+      ["gluteo","Gluteo","L5–S2 (variabile)"]
+    ],
+    anca_coscia: [
+      ["anca","Anca","L2–L3 (frequente)"],
+      ["coscia_anteriore","Coscia anteriore","L3 (frequente)"],
+      ["coscia_posteriore","Coscia posteriore","S1–S2 (variabile)"]
     ],
     ginocchio: [
-      ["mediale","Ginocchio interno (mediale)","lato interno ginocchio"],
-      ["laterale","Ginocchio esterno (laterale)","lato esterno ginocchio"],
-      ["anteriore","Ginocchio anteriore (rotula)","davanti"],
-      ["posteriore","Ginocchio posteriore (cavo)","dietro"]
+      ["gin_mediale","Ginocchio interno (mediale)","L4"],
+      ["gin_laterale","Ginocchio esterno (laterale)","L5"],
+      ["gin_anteriore","Ginocchio anteriore (rotula)","L3"],
+      ["gin_posteriore","Ginocchio posteriore (cavo)","S1"]
+    ],
+    gamba_caviglia_piede: [
+      ["gamba_laterale","Gamba laterale","L5 (frequente)"],
+      ["gamba_mediale","Gamba mediale","L4 (variabile)"],
+      ["polpaccio","Polpaccio","S1 (frequente)"],
+      ["caviglia","Caviglia","L4–L5 (variabile)"],
+      ["alluce","Alluce","L5"],
+      ["pianta_piede","Pianta del piede","S1–S2 (variabile)"],
+      ["tallone","Tallone","S1"]
     ]
   };
 
-  /* ========== COORDINATE SEGMENTI SULLA TUA colonna_segmenti.png ==========
-     IMPORTANTE: questi TOP sono “base”. Se vuoi precisione perfetta sul TUO file,
-     correggi i valori top di 1–3 punti finché il marker cade sulla scritta.
-  ========== */
+  /* ================= COORDINATE SEGMENTI SU colonna_segmenti.png =================
+     Se il marker non cade esatto sulla scritta (C7, L4...), correggi TOP di 1–3 punti.
+  ================================================================================ */
   const SPINE_LEVEL = {
     C2:{left:62, top:10}, C3:{left:62, top:13}, C4:{left:62, top:16}, C5:{left:62, top:19}, C6:{left:62, top:22}, C7:{left:62, top:25}, C8:{left:62, top:28},
     T1:{left:62, top:31}, T2:{left:62, top:34}, T3:{left:62, top:37}, T4:{left:62, top:40}, T5:{left:62, top:43}, T6:{left:62, top:46}, T7:{left:62, top:49},
@@ -286,143 +397,335 @@
     S1:{left:62, top:84}, S2:{left:62, top:87}, S3:{left:62, top:90}, S4:{left:62, top:93}, S5:{left:62, top:96}
   };
 
-  /* ========== PERCORSI: per ogni zona definisci
-     - dermatome (segmento colonna) -> marker 1
-     - pain (coordinate su dermatomeri-sensitivi.png) -> marker 2
-     - muscle (coordinate su dermatomeri-sensitivi.png) + muscleName -> marker 3
-     - testi popup (scientifico + paziente)
-  ========== */
+  /* ================= FUNZIONE: sposta marker a sinistra/destra in base al lato =================
+     - se "bilaterale" -> lascia centrale
+     - per zone "sided:true" -> sposta X di +/- 10
+  ============================================================================================ */
+  function applySideX(x, sided, side){
+    if(!sided) return x;
+    if(side === "sinistro") return x - 10;
+    if(side === "destro") return x + 10;
+    return x; // bilaterale
+  }
+
+  /* ================= PERCORSI (contenuto + coordinate su dermatomeri-sensitivi.png) =================
+     Nota: coordinate sono una base. Se vuoi più precisione visiva, aggiusta left/top.
+  ================================================================================================ */
   const PATHWAYS = {
-    mano: {
-      pollice: {
-        dermatome: "C6",
-        pain:   {left:26, top:56},
-        muscle: {left:36, top:48},
-        muscleName: "Comparto radiale avambraccio (estensori/abduttori del pollice)",
-        scientific: `
-          <p><b>Marker colonna (C6):</b> aggancio segmentario coerente col territorio radiale mano/pollice.
-          L’obiettivo è modulare l’afferenza sensitiva/propriocettiva e ridurre il guadagno del sistema (iper-protezione).</p>
-          <p><b>Marker dolore (pollice):</b> riduce il rumore nocicettivo locale e migliora la discriminazione sensoriale.</p>
-          <p><b>Marker muscolo (pollice):</b> normalizza reclutamento e coordinazione fine (pinza/presa), riducendo co-contrazioni.</p>
-        `,
-        patient: `
-          <p>Metti un bollino sul livello <b>C6</b> (colonna) perché “comanda” la zona del pollice.
-          Poi un bollino dove fa male e uno sul muscolo dell’avambraccio che muove il pollice: così il movimento diventa più facile e meno rigido.</p>
-        `
-      },
-      indice: {
-        dermatome: "C6",
-        pain:   {left:24, top:52},
-        muscle: {left:36, top:46},
-        muscleName: "Estensori dita (avambraccio dorsale)",
-        scientific: `
-          <p><b>C6:</b> riferimento segmentario per distretto radiale mano.</p>
-          <p><b>Dolore:</b> miglioramento qualità del segnale locale.</p>
-          <p><b>Muscolo:</b> ottimizzazione coordinazione estensione/presa.</p>
-        `,
-        patient:`<p>Bollino su <b>C6</b>, poi sul dolore e sul muscolo che muove il dito: aiuta a ridurre tensione e migliorare controllo.</p>`
-      },
-      medio: {
-        dermatome: "C7",
-        pain:   {left:22, top:49},
-        muscle: {left:36, top:45},
-        muscleName: "Estensore comune delle dita (Extensor digitorum)",
-        scientific: `
-          <p><b>Marker colonna (C7):</b> riferimento segmentario tipico per il distretto centrale della mano (dito medio).
-          Lo stimolo favorisce integrazione sensitivo-motoria e riduce il “settaggio in allarme”.</p>
-          <p><b>Marker dolore:</b> riduce ipersensibilità e migliora la precisione percettiva.</p>
-          <p><b>Marker muscolo:</b> migliora sequenza di attivazione dell’estensore comune, riducendo co-contrazioni disfunzionali.</p>
-        `,
-        patient: `
-          <p>Per il dito medio il livello guida è <b>C7</b>. Metti un bollino lì, uno dove senti dolore e uno sul muscolo che muove il dito:
-          così la mano lavora più “morbida” e precisa.</p>
-        `
-      },
-      anulare: {
-        dermatome: "C8",
-        pain:   {left:20, top:50},
-        muscle: {left:38, top:46},
-        muscleName: "Flessori/estensori dita (sinergia) – componente ulnare",
-        scientific: `
-          <p><b>C8:</b> (variabile, spesso C7–C8) qui usiamo C8 come riferimento ulnare.</p>
-          <p><b>Dolore:</b> normalizza la sensibilità locale.</p>
-          <p><b>Muscolo:</b> migliora sinergia presa/estensione.</p>
-        `,
-        patient:`<p>Bollino su <b>C8</b>, poi sul dolore dell’anulare e sul muscolo dell’avambraccio: aiuta a muovere meglio senza irrigidirti.</p>`
-      },
-      mignolo: {
-        dermatome: "C8",
-        pain:   {left:18, top:52},
-        muscle: {left:40, top:48},
-        muscleName: "Comparto ulnare mano/avambraccio (controllo mignolo)",
-        scientific: `
-          <p><b>C8:</b> riferimento segmentario per il lato ulnare (mignolo).</p>
-          <p><b>Dolore:</b> riduce iper-protezione locale.</p>
-          <p><b>Muscolo:</b> supporta controllo fine e presa ulnare.</p>
-        `,
-        patient:`<p>Per il mignolo: un bollino su <b>C8</b>, uno sul dolore e uno sul muscolo del lato del mignolo.</p>`
-      }
+    /* TESTA / COLLO */
+    collo_laterale: {
+      dermatome:"C4", sided:true,
+      pain:{left:50, top:13}, muscle:{left:50, top:18},
+      muscleName:"Scaleni / elevatore della scapola (controllo cervicale)",
+      scientific: `
+        <p><b>Colonna (C4):</b> aggancio segmentario correlato al territorio cervicale e alla modulazione del tono posturale del tratto alto.</p>
+        <p><b>Dolore (collo):</b> riduzione dell’iper-protezione locale e miglioramento della qualità afferente.</p>
+        <p><b>Muscolo:</b> normalizzazione del controllo dei muscoli cervicali che mantengono l’allineamento, riducendo compensi.</p>
+      `,
+      patient:`<p>La mappa indica <b>C4</b>: metti un bollino su quel livello della colonna, uno sul punto del collo che fa male e uno sul muscolo che “tira” la zona.</p>`
+    },
+    collo_posteriore: {
+      dermatome:"C3", sided:false,
+      pain:{left:50, top:10}, muscle:{left:50, top:15},
+      muscleName:"Suboccipitali / estensori cervicali",
+      scientific: `
+        <p><b>Colonna (C3):</b> riferimento segmentario tipico per regione nucale/posteriore.</p>
+        <p><b>Dolore:</b> modulazione dell’input nocicettivo locale.</p>
+        <p><b>Muscolo:</b> riduzione della rigidità degli estensori cervicali e migliore controllo della postura del capo.</p>
+      `,
+      patient:`<p>Metti un bollino su <b>C3</b>, uno dietro al collo dove senti dolore e uno sui muscoli dietro la nuca.</p>`
+    },
+    trapezio_superiore: {
+      dermatome:"C4", sided:true,
+      pain:{left:60, top:18}, muscle:{left:62, top:22},
+      muscleName:"Trapezio superiore (controllo scapolare)",
+      scientific: `
+        <p><b>C4:</b> riferimento segmentario spesso coerente con dolore trapezio superiore.</p>
+        <p><b>Dolore:</b> riduce iperattività di protezione.</p>
+        <p><b>Muscolo:</b> migliora la coordinazione scapolo-omerale (spalla più libera).</p>
+      `,
+      patient:`<p>Metti un bollino su <b>C4</b>, uno sul trapezio dove fa male e uno sul muscolo che solleva la spalla.</p>`
     },
 
-    ginocchio: {
-      mediale: {
-        dermatome: "L4",
-        pain:   {left:44, top:73},
-        muscle: {left:50, top:66},
-        muscleName: "Vasto mediale (quadricipite) – stabilità ginocchio",
-        scientific: `
-          <p><b>L4:</b> riferimento segmentario spesso coerente con dolore antero-mediale ginocchio.</p>
-          <p><b>Dolore:</b> riduzione del segnale nocicettivo locale e miglioramento controllo del carico.</p>
-          <p><b>Muscolo:</b> facilitazione del vasto mediale per stabilità e tracking rotuleo.</p>
-        `,
-        patient:`<p>Ginocchio interno: bollino su <b>L4</b>, poi sul dolore e sul muscolo della coscia che stabilizza il ginocchio.</p>`
-      },
-      laterale: {
-        dermatome: "L5",
-        pain:   {left:56, top:73},
-        muscle: {left:58, top:64},
-        muscleName: "Complesso laterale coscia (TFL/ITB) – controllo laterale",
-        scientific: `
-          <p><b>L5:</b> riferimento segmentario frequente per distretto laterale.</p>
-          <p><b>Dolore:</b> riduce compensi e rigidità.</p>
-          <p><b>Muscolo:</b> migliora stabilità laterale in appoggio.</p>
-        `,
-        patient:`<p>Ginocchio esterno: bollino su <b>L5</b>, poi sul dolore e sul muscolo laterale che controlla la stabilità.</p>`
-      },
-      anteriore: {
-        dermatome: "L3",
-        pain:   {left:50, top:71},
-        muscle: {left:50, top:62},
-        muscleName: "Quadricipite (retto femorale/VMO) – estensione ginocchio",
-        scientific: `
-          <p><b>L3:</b> riferimento segmentario per distretto anteriore.</p>
-          <p><b>Dolore:</b> riduce iper-protezione femoro-rotulea.</p>
-          <p><b>Muscolo:</b> migliora controllo del quadricipite in flesso-estensione.</p>
-        `,
-        patient:`<p>Dolore davanti al ginocchio: bollino su <b>L3</b>, poi sul dolore e sul muscolo della coscia.</p>`
-      },
-      posteriore: {
-        dermatome: "S1",
-        pain:   {left:50, top:77},
-        muscle: {left:52, top:84},
-        muscleName: "Gastrocnemio/Soleo – catena posteriore",
-        scientific: `
-          <p><b>S1:</b> riferimento segmentario frequente per distretto posteriore e catena posteriore.</p>
-          <p><b>Dolore:</b> modulazione in cavo popliteo.</p>
-          <p><b>Muscolo:</b> normalizza tono del polpaccio collegato al gesto del ginocchio.</p>
-        `,
-        patient:`<p>Dolore dietro al ginocchio: bollino su <b>S1</b>, poi sul dolore e sul polpaccio.</p>`
-      }
+    /* SPALLA / BRACCIO */
+    spalla: {
+      dermatome:"C5", sided:true,
+      pain:{left:70, top:22}, muscle:{left:66, top:26},
+      muscleName:"Deltoide / sovraspinato (abduzione spalla)",
+      scientific: `
+        <p><b>Colonna (C5):</b> riferimento segmentario tipico per regione deltoidea e spalla.</p>
+        <p><b>Dolore:</b> integrazione locale con riduzione della reattività protettiva.</p>
+        <p><b>Muscolo:</b> ottimizzazione del reclutamento in abduzione e miglior controllo scapolare.</p>
+      `,
+      patient:`<p>Per la spalla la mappa guida spesso a <b>C5</b>: bollino su C5, poi sul dolore e sul muscolo della spalla.</p>`
+    },
+    braccio_laterale: {
+      dermatome:"C6", sided:true,
+      pain:{left:72, top:32}, muscle:{left:64, top:30},
+      muscleName:"Bicipite / brachiale (flessione gomito)",
+      scientific: `
+        <p><b>C6:</b> riferimento segmentario comune per territorio laterale braccio/avambraccio.</p>
+        <p><b>Dolore:</b> riduce rumore sensitivo locale.</p>
+        <p><b>Muscolo:</b> migliora controllo della flessione con riduzione di compensi.</p>
+      `,
+      patient:`<p>Bollino su <b>C6</b>, poi sul punto del braccio che fa male e sul muscolo che piega il gomito.</p>`
+    },
+    braccio_mediale: {
+      dermatome:"T1", sided:true,
+      pain:{left:64, top:34}, muscle:{left:62, top:40},
+      muscleName:"Gruppo mediale braccio (controllo mano/avambraccio)",
+      scientific: `
+        <p><b>T1:</b> spesso correlato a territorio mediale braccio e componente ulnare della mano.</p>
+        <p><b>Dolore:</b> modulazione locale.</p>
+        <p><b>Muscolo:</b> supporto al controllo del distretto ulnare.</p>
+      `,
+      patient:`<p>Bollino su <b>T1</b>, poi sul dolore interno del braccio e sul muscolo di supporto.</p>`
+    },
+
+    /* GOMITO / POLSO / MANO */
+    gomito_laterale: {
+      dermatome:"C6", sided:true,
+      pain:{left:76, top:40}, muscle:{left:70, top:44},
+      muscleName:"Estensori del polso (comparto laterale avambraccio)",
+      scientific: `
+        <p><b>C6:</b> riferimento segmentario per distretto laterale avambraccio.</p>
+        <p><b>Dolore:</b> riduce iper-protezione locale.</p>
+        <p><b>Muscolo:</b> migliora carico e controllo del polso riducendo sovraccarico.</p>
+      `,
+      patient:`<p>Metti un bollino su <b>C6</b>, uno sul gomito esterno dove fa male e uno sugli estensori del polso.</p>`
+    },
+    gomito_mediale: {
+      dermatome:"C8", sided:true,
+      pain:{left:72, top:42}, muscle:{left:66, top:48},
+      muscleName:"Flessori del polso/dita (comparto mediale avambraccio)",
+      scientific: `
+        <p><b>C8:</b> riferimento ulnare per flessori e dita.</p>
+        <p><b>Dolore:</b> riduzione del segnale locale.</p>
+        <p><b>Muscolo:</b> riequilibrio del comparto flessorio.</p>
+      `,
+      patient:`<p>Bollino su <b>C8</b>, uno sul gomito interno e uno sui flessori dell’avambraccio.</p>`
+    },
+    polso: {
+      dermatome:"C7", sided:true,
+      pain:{left:74, top:54}, muscle:{left:66, top:52},
+      muscleName:"Flessori/estensori polso (controllo del carico)",
+      scientific: `
+        <p><b>C7:</b> spesso coerente con distretto centrale del polso/mano.</p>
+        <p><b>Dolore:</b> modulazione locale.</p>
+        <p><b>Muscolo:</b> migliore controllo del polso in presa e appoggio.</p>
+      `,
+      patient:`<p>Bollino su <b>C7</b>, poi sul polso dove fa male e sul muscolo dell’avambraccio.</p>`
+    },
+    pollice: {
+      dermatome:"C6", sided:true,
+      pain:{left:26, top:56}, muscle:{left:36, top:48},
+      muscleName:"Comparto radiale avambraccio (estensori/abduttori del pollice)",
+      scientific: `
+        <p><b>Colonna (C6):</b> aggancio segmentario per territorio radiale mano/pollice, con modulazione afferente e riduzione del guadagno protettivo.</p>
+        <p><b>Dolore (pollice):</b> riduce rumore nocicettivo locale e migliora discriminazione sensoriale.</p>
+        <p><b>Muscolo:</b> normalizza reclutamento fine (pinza/presa), riducendo co-contrazioni.</p>
+      `,
+      patient:`<p>Per il pollice la mappa indica <b>C6</b>. Bollino su C6, poi sul punto dolente del pollice e sul muscolo dell’avambraccio che muove il pollice.</p>`
+    },
+    indice: {
+      dermatome:"C6", sided:true,
+      pain:{left:24, top:52}, muscle:{left:36, top:46},
+      muscleName:"Estensori dita (avambraccio dorsale)",
+      scientific:`<p><b>C6:</b> riferimento segmentario per distretto radiale mano.</p><p><b>Dolore:</b> normalizzazione del segnale locale.</p><p><b>Muscolo:</b> migliore coordinazione della presa.</p>`,
+      patient:`<p>Bollino su <b>C6</b>, poi sul dolore dell’indice e sul muscolo dell’avambraccio.</p>`
+    },
+    medio: {
+      dermatome:"C7", sided:true,
+      pain:{left:22, top:49}, muscle:{left:36, top:45},
+      muscleName:"Estensore comune delle dita (Extensor digitorum)",
+      scientific: `
+        <p><b>Colonna (C7):</b> riferimento segmentario tipico per distretto centrale della mano (dito medio).</p>
+        <p><b>Dolore:</b> riduzione ipersensibilità locale.</p>
+        <p><b>Muscolo:</b> migliora sequenza di attivazione degli estensori e precisione del gesto.</p>
+      `,
+      patient:`<p>Per il dito medio: bollino su <b>C7</b>, poi sul dolore e sul muscolo dell’avambraccio.</p>`
+    },
+    anulare: {
+      dermatome:"C8", sided:true,
+      pain:{left:20, top:50}, muscle:{left:38, top:46},
+      muscleName:"Flessori/estensori dita – componente ulnare",
+      scientific:`<p><b>C8:</b> riferimento ulnare frequente per dita ulnari.</p><p><b>Dolore:</b> modulazione locale.</p><p><b>Muscolo:</b> sinergia di presa più fluida.</p>`,
+      patient:`<p>Bollino su <b>C8</b>, poi sul dolore dell’anulare e sul muscolo dell’avambraccio.</p>`
+    },
+    mignolo: {
+      dermatome:"C8", sided:true,
+      pain:{left:18, top:52}, muscle:{left:40, top:48},
+      muscleName:"Comparto ulnare mano/avambraccio (controllo mignolo)",
+      scientific:`<p><b>C8:</b> riferimento per lato ulnare.</p><p><b>Dolore:</b> riduzione rigidità locale.</p><p><b>Muscolo:</b> controllo fine del mignolo.</p>`,
+      patient:`<p>Per il mignolo: bollino su <b>C8</b>, poi sul dolore e sul muscolo del lato ulnare.</p>`
+    },
+
+    /* TORACE / ADDOME */
+    torace_alto: {
+      dermatome:"T4", sided:false,
+      pain:{left:50, top:24}, muscle:{left:52, top:30},
+      muscleName:"Intercostali / pettorale (modulazione tono toracico)",
+      scientific: `
+        <p><b>T4:</b> riferimento segmentario comune per regione toracica alta.</p>
+        <p><b>Dolore:</b> riduzione dell’iper-protezione respiratoria.</p>
+        <p><b>Muscolo:</b> ottimizzazione del tono della gabbia toracica.</p>
+      `,
+      patient:`<p>Bollino su <b>T4</b>, poi sul dolore al torace e sul muscolo vicino al dolore.</p>`
+    },
+    torace_basso: {
+      dermatome:"T8", sided:false,
+      pain:{left:50, top:33}, muscle:{left:52, top:38},
+      muscleName:"Intercostali bassi / diaframma (controllo tronco)",
+      scientific:`<p><b>T8:</b> riferimento per regione toracica medio-bassa.</p><p><b>Dolore:</b> modulazione locale.</p><p><b>Muscolo:</b> supporto al controllo del tronco.</p>`,
+      patient:`<p>Bollino su <b>T8</b>, poi sul dolore e sul muscolo vicino.</p>`
+    },
+    addome: {
+      dermatome:"T10", sided:false,
+      pain:{left:50, top:44}, muscle:{left:52, top:48},
+      muscleName:"Addominali (controllo pressione e stabilità)",
+      scientific:`<p><b>T10:</b> riferimento addominale tipico.</p><p><b>Dolore:</b> modulazione locale.</p><p><b>Muscolo:</b> migliore controllo del tronco.</p>`,
+      patient:`<p>Bollino su <b>T10</b>, poi sul dolore addominale e sul muscolo vicino.</p>`
+    },
+
+    /* LOMBARE / BACINO */
+    lombare_centrale: {
+      dermatome:"L4", sided:false,
+      pain:{left:50, top:56}, muscle:{left:52, top:60},
+      muscleName:"Paravertebrali lombari (controllo segmentario)",
+      scientific: `
+        <p><b>L4:</b> riferimento frequente per lombare medio-bassa.</p>
+        <p><b>Dolore:</b> riduzione della rigidità protettiva.</p>
+        <p><b>Muscolo:</b> riequilibrio del controllo segmentario lombare.</p>
+      `,
+      patient:`<p>Bollino su <b>L4</b>, poi sul dolore lombare e sui muscoli della zona.</p>`
+    },
+    lombare_laterale: {
+      dermatome:"L3", sided:true,
+      pain:{left:58, top:56}, muscle:{left:60, top:62},
+      muscleName:"Quadrato dei lombi / fascia lombare",
+      scientific:`<p><b>L3:</b> spesso coerente con lombare laterale.</p><p><b>Dolore:</b> modulazione locale.</p><p><b>Muscolo:</b> riduzione tensioni laterali.</p>`,
+      patient:`<p>Bollino su <b>L3</b>, poi sul fianco lombare dove fa male e sul muscolo laterale.</p>`
+    },
+    gluteo: {
+      dermatome:"S1", sided:true,
+      pain:{left:58, top:60}, muscle:{left:60, top:66},
+      muscleName:"Grande gluteo / rotatori esterni (stabilità bacino)",
+      scientific:`<p><b>S1:</b> riferimento posteriore bacino frequente.</p><p><b>Dolore:</b> riduzione iper-protezione.</p><p><b>Muscolo:</b> migliore stabilità del bacino.</p>`,
+      patient:`<p>Bollino su <b>S1</b>, poi sul gluteo dove fa male e sul muscolo del bacino.</p>`
+    },
+
+    /* ANCA / COSCIA */
+    anca: {
+      dermatome:"L2", sided:true,
+      pain:{left:62, top:63}, muscle:{left:58, top:70},
+      muscleName:"Ileo-psoas / adduttori (controllo anca)",
+      scientific:`<p><b>L2:</b> spesso correlato a regione anca/inguine.</p><p><b>Dolore:</b> modulazione locale.</p><p><b>Muscolo:</b> miglior controllo dell’anca in carico.</p>`,
+      patient:`<p>Bollino su <b>L2</b>, poi sul dolore dell’anca e sul muscolo che muove l’anca.</p>`
+    },
+    coscia_anteriore: {
+      dermatome:"L3", sided:true,
+      pain:{left:54, top:70}, muscle:{left:52, top:66},
+      muscleName:"Quadricipite (estensione ginocchio / controllo coscia)",
+      scientific:`<p><b>L3:</b> riferimento anteriore coscia frequente.</p><p><b>Dolore:</b> riduzione rigidità.</p><p><b>Muscolo:</b> migliore reclutamento del quadricipite.</p>`,
+      patient:`<p>Bollino su <b>L3</b>, poi sul dolore della coscia e sul muscolo della coscia.</p>`
+    },
+    coscia_posteriore: {
+      dermatome:"S1", sided:true,
+      pain:{left:54, top:74}, muscle:{left:52, top:80},
+      muscleName:"Ischiocrurali (catena posteriore)",
+      scientific:`<p><b>S1:</b> riferimento catena posteriore frequente.</p><p><b>Dolore:</b> modulazione locale.</p><p><b>Muscolo:</b> riduzione tensione ischiocrurali.</p>`,
+      patient:`<p>Bollino su <b>S1</b>, poi sul dolore dietro coscia e sul muscolo dietro.</p>`
+    },
+
+    /* GINOCCHIO */
+    gin_mediale: {
+      dermatome:"L4", sided:true,
+      pain:{left:50, top:79}, muscle:{left:50, top:72},
+      muscleName:"Vasto mediale (quadricipite) – stabilità ginocchio",
+      scientific:`<p><b>L4:</b> spesso coerente con dolore antero-mediale ginocchio.</p><p><b>Dolore:</b> modulazione locale.</p><p><b>Muscolo:</b> controllo del tracking rotuleo e stabilità.</p>`,
+      patient:`<p>Ginocchio interno: bollino su <b>L4</b>, poi sul dolore e sul muscolo della coscia.</p>`
+    },
+    gin_laterale: {
+      dermatome:"L5", sided:true,
+      pain:{left:50, top:79}, muscle:{left:60, top:70},
+      muscleName:"Complesso laterale coscia (TFL/ITB) – controllo laterale",
+      scientific:`<p><b>L5:</b> riferimento laterale frequente.</p><p><b>Dolore:</b> modulazione locale.</p><p><b>Muscolo:</b> stabilità laterale in carico.</p>`,
+      patient:`<p>Ginocchio esterno: bollino su <b>L5</b>, poi sul dolore e sul muscolo laterale della coscia.</p>`
+    },
+    gin_anteriore: {
+      dermatome:"L3", sided:true,
+      pain:{left:50, top:77}, muscle:{left:50, top:70},
+      muscleName:"Quadricipite (retto femorale/VMO)",
+      scientific:`<p><b>L3:</b> riferimento anteriore frequente.</p><p><b>Dolore:</b> riduzione iper-protezione femoro-rotulea.</p><p><b>Muscolo:</b> controllo dell’estensione.</p>`,
+      patient:`<p>Dolore davanti al ginocchio: bollino su <b>L3</b>, poi sul dolore e sul muscolo della coscia.</p>`
+    },
+    gin_posteriore: {
+      dermatome:"S1", sided:true,
+      pain:{left:50, top:82}, muscle:{left:52, top:90},
+      muscleName:"Gastrocnemio/Soleo – catena posteriore",
+      scientific:`<p><b>S1:</b> riferimento posteriore frequente.</p><p><b>Dolore:</b> modulazione locale.</p><p><b>Muscolo:</b> normalizzazione del polpaccio.</p>`,
+      patient:`<p>Dolore dietro al ginocchio: bollino su <b>S1</b>, poi sul dolore e sul polpaccio.</p>`
+    },
+
+    /* GAMBA / CAVIGLIA / PIEDE */
+    gamba_laterale: {
+      dermatome:"L5", sided:true,
+      pain:{left:54, top:88}, muscle:{left:56, top:82},
+      muscleName:"Peronieri / tibiale anteriore (controllo caviglia)",
+      scientific:`<p><b>L5:</b> riferimento frequente per lato laterale gamba.</p><p><b>Dolore:</b> modulazione locale.</p><p><b>Muscolo:</b> miglior controllo della caviglia nel passo.</p>`,
+      patient:`<p>Bollino su <b>L5</b>, poi sul dolore della gamba e sul muscolo che controlla la caviglia.</p>`
+    },
+    gamba_mediale: {
+      dermatome:"L4", sided:true,
+      pain:{left:52, top:88}, muscle:{left:50, top:82},
+      muscleName:"Tibiale posteriore (controllo arco plantare)",
+      scientific:`<p><b>L4:</b> riferimento mediale frequente.</p><p><b>Dolore:</b> modulazione locale.</p><p><b>Muscolo:</b> supporto all’arco del piede e stabilità.</p>`,
+      patient:`<p>Bollino su <b>L4</b>, poi sul dolore interno gamba e sul muscolo del piede/caviglia.</p>`
+    },
+    polpaccio: {
+      dermatome:"S1", sided:true,
+      pain:{left:52, top:90}, muscle:{left:50, top:92},
+      muscleName:"Gastrocnemio/Soleo (spinta nel passo)",
+      scientific:`<p><b>S1:</b> riferimento catena posteriore.</p><p><b>Dolore:</b> riduzione rigidità locale.</p><p><b>Muscolo:</b> migliore spinta e scarico tensione.</p>`,
+      patient:`<p>Bollino su <b>S1</b>, poi sul dolore al polpaccio e sul muscolo del polpaccio.</p>`
+    },
+    caviglia: {
+      dermatome:"L4", sided:true,
+      pain:{left:52, top:94}, muscle:{left:50, top:86},
+      muscleName:"Tibiale anteriore/posteriore (stabilità caviglia)",
+      scientific:`<p><b>L4:</b> riferimento comune per distretto caviglia.</p><p><b>Dolore:</b> modulazione locale.</p><p><b>Muscolo:</b> stabilità e controllo del passo.</p>`,
+      patient:`<p>Bollino su <b>L4</b>, poi sulla caviglia dove fa male e sul muscolo che controlla la caviglia.</p>`
+    },
+    alluce: {
+      dermatome:"L5", sided:true,
+      pain:{left:46, top:97}, muscle:{left:52, top:90},
+      muscleName:"Estensore lungo dell’alluce (controllo avampiede)",
+      scientific:`<p><b>L5:</b> riferimento tipico per alluce/avampiede.</p><p><b>Dolore:</b> riduzione iper-protezione.</p><p><b>Muscolo:</b> migliora controllo dell’avampiede nel passo.</p>`,
+      patient:`<p>Alluce: bollino su <b>L5</b>, poi sul dolore dell’alluce e sul muscolo che lo muove.</p>`
+    },
+    pianta_piede: {
+      dermatome:"S1", sided:true,
+      pain:{left:50, top:97}, muscle:{left:50, top:94},
+      muscleName:"Muscoli intrinseci del piede (stabilità arco)",
+      scientific:`<p><b>S1:</b> spesso correlato a pianta piede/tallone.</p><p><b>Dolore:</b> modulazione locale.</p><p><b>Muscolo:</b> supporto alla stabilità dell’arco.</p>`,
+      patient:`<p>Bollino su <b>S1</b>, poi sul dolore sotto al piede e sul punto muscolare vicino.</p>`
+    },
+    tallone: {
+      dermatome:"S1", sided:true,
+      pain:{left:52, top:98}, muscle:{left:50, top:92},
+      muscleName:"Catena posteriore (soleo/fascia plantare)",
+      scientific:`<p><b>S1:</b> riferimento frequente per tallone.</p><p><b>Dolore:</b> modulazione locale.</p><p><b>Muscolo:</b> scarico della catena posteriore.</p>`,
+      patient:`<p>Tallone: bollino su <b>S1</b>, poi sul dolore al tallone e sul polpaccio/area di supporto.</p>`
     }
   };
 
-  /* ======= STATO + HELPERS ======= */
+  /* ================= STATO + HELPERS ================= */
   const STATE = { step:1, area:"", side:"", zone:"", zoneLabel:"", intensity:"", duration:"", notes:"" };
   const $ = (id)=>document.getElementById(id);
 
   function showStep(n){
     STATE.step=n;
-    ["step1","step2","step3","step4"].forEach((s,i)=>$(s).classList.toggle("active", i===n-1));
+    ["step1","step2","step3","step4","step5"].forEach((s,i)=>$(s).classList.toggle("active", i===n-1));
     const barSteps = 4;
     const idx = Math.min(n, barSteps);
     $("bar").style.width = (((idx-1)/(barSteps-1))*100) + "%";
@@ -490,7 +793,7 @@
 
   function buildSummaryText(pathway){
     return [
-      `Area: ${STATE.area}`,
+      `Distretto: ${STATE.area}`,
       `Lato: ${STATE.side}`,
       `Zona: ${STATE.zoneLabel}`,
       `Intensità: ${STATE.intensity}`,
@@ -499,7 +802,9 @@
       ``,
       `Marker 1 (colonna): ${pathway.dermatome}`,
       `Marker 2 (dolore): ${STATE.zoneLabel}`,
-      `Marker 3 (muscolo): ${pathway.muscleName}`
+      `Marker 3 (muscolo): ${pathway.muscleName}`,
+      ``,
+      `Protocollo: 2h mattina + 2h sera; 5 giorni ON + 2 giorni OFF; se intolleranza rimuovere e riprovare meno ore.`
     ].join("\n");
   }
 
@@ -512,10 +817,19 @@
     else { box.style.display="none"; box.innerHTML=""; }
   }
 
-  /* ======= UI BUTTONS ======= */
+  /* ================= NAV PROTOCOLLO ================= */
+  function openProtocollo(){
+    showStep(5);
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+  $("btnProtocollo").addEventListener("click", openProtocollo);
+  $("btnProtocollo2").addEventListener("click", openProtocollo);
+  $("backProto").addEventListener("click", ()=>{ showStep(4); window.scrollTo({top:0,behavior:"smooth"}); });
+
+  /* ================= UI FLOW ================= */
   $("next1").addEventListener("click", ()=>{
     const a=$("area").value, s=$("side").value;
-    if(!a||!s){ alert("Seleziona area e lato."); return; }
+    if(!a||!s){ alert("Seleziona distretto e lato."); return; }
     STATE.area=a; STATE.side=s; STATE.zone=""; STATE.zoneLabel="";
     renderZones();
     showStep(2);
@@ -541,59 +855,59 @@
     STATE.duration=duration;
     STATE.notes=notes;
 
-    const pathway = PATHWAYS[STATE.area]?.[STATE.zone];
+    const pathway = PATHWAYS[STATE.zone];
     if(!pathway){
-      alert("Percorso non definito. (Aggiungilo in PATHWAYS).");
+      alert("Percorso non definito per questa zona. (Aggiungilo in PATHWAYS).");
       return;
     }
 
     setImages();
     clearMarkers();
 
-    // Marker 1: colonna al livello dermatomerico
+    // 1) Marker colonna (dermatomo)
     const lev = pathway.dermatome;
     const pos = SPINE_LEVEL[lev];
     if(pos){
       addMarker("wrapSpine", pos.left, pos.top, {
-        title: `Segmento ${lev} (dermatomero)`,
+        title: `Marker colonna — ${lev}`,
         level: lev,
         chips: ["colonna","dermatomero", lev],
         scientific: pathway.scientific,
         patient: pathway.patient
       });
     } else {
-      // se manca il livello in tabella
       addMarker("wrapSpine", 62, 50, {
         title: `Livello non mappato: ${lev}`,
         level: lev,
         chips: ["colonna","attenzione"],
         scientific: `<p>Manca la coordinata per <b>${lev}</b> in <code>SPINE_LEVEL</code>.</p>`,
-        patient: `<p>Serve una piccola correzione tecnica: manca il punto del livello <b>${lev}</b>.</p>`
+        patient: `<p>Serve una correzione tecnica: manca il punto del livello <b>${lev}</b>.</p>`
       });
     }
 
-    // Marker 2: dolore sulla mappa dermatomeri
-    addMarker("wrapBody", pathway.pain.left, pathway.pain.top, {
-      title: "Punto dolore (distretto)",
+    // 2) Marker dolore (con spostamento lato)
+    const painX = applySideX(pathway.pain.left, pathway.sided, STATE.side);
+    addMarker("wrapBody", painX, pathway.pain.top, {
+      title: "Marker dolore (distretto)",
       level: "Dolore",
       chips: ["dolore","distretto"],
       scientific: `
-        <p><b>Perché qui:</b> localizziamo la sede sintomatica. Lo stimolo agisce sulla componente sensitivo-propriocettiva locale,
-        riducendo iper-protezione e migliorando la qualità del movimento.</p>
+        <p><b>Perché qui:</b> localizziamo la sede sintomatica. L’obiettivo è ridurre l’iper-protezione e migliorare la qualità dell’informazione sensitiva locale.</p>
       `,
-      patient: `<p>Questo bollino indica <b>dove senti dolore</b>. Serve per guidarti e monitorare se migliora.</p>`
+      patient: `<p>Questo bollino indica <b>dove senti dolore</b>. Serve per guidarti e monitorare il cambiamento nei giorni.</p>`
     });
 
-    // Marker 3: muscolo chiave
-    addMarker("wrapBody", pathway.muscle.left, pathway.muscle.top, {
-      title: `Muscolo chiave: ${pathway.muscleName}`,
+    // 3) Marker muscolo (con spostamento lato)
+    const musX = applySideX(pathway.muscle.left, pathway.sided, STATE.side);
+    addMarker("wrapBody", musX, pathway.muscle.top, {
+      title: `Marker muscolo — ${pathway.muscleName}`,
       level: "Muscolo",
       chips: ["muscolo","movimento"],
       scientific: `
-        <p><b>Perché qui:</b> il dolore altera il reclutamento. Il punto sul muscolo facilita una sequenza di attivazione più efficiente e riduce co-contrazioni inutili.</p>
-        <p><b>Effetto atteso:</b> gesto più economico, meno rigidità, maggiore controllo.</p>
+        <p><b>Perché qui:</b> il dolore modifica il reclutamento. Un punto sul muscolo chiave aiuta a rendere il movimento più efficiente e meno “in difesa”.</p>
+        <p><b>Effetto atteso:</b> gesto più economico, minore rigidità, migliore controllo.</p>
       `,
-      patient: `<p>Questo bollino è sul <b>muscolo che muove/stabilizza</b> la zona: aiuta a far lavorare meglio il movimento.</p>`
+      patient: `<p>Questo bollino è sul <b>muscolo che muove/stabilizza</b> la zona. Aiuta a ridurre la tensione e a muovere meglio.</p>`
     });
 
     $("summary").textContent = buildSummaryText(pathway);
@@ -610,6 +924,7 @@
     $("safety").style.display="none"; $("safety").innerHTML="";
     clearMarkers();
     showStep(1);
+    window.scrollTo({top:0,behavior:"smooth"});
   });
 
   $("copy").addEventListener("click", async ()=>{
@@ -623,6 +938,7 @@
 </script>
 </body>
 </html>
+
 
 
 
